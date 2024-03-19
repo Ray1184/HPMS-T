@@ -12,9 +12,8 @@ namespace hpms
 {
     class RenderSystem
     {
-    private:
-        static void Verify(Entity* entity);
     public:
+        static void Init(std::vector<Entity*>& entities, Renderer* renderer, Window* window, FrameBuffer* framebuffer);
         static void Update(std::vector<Entity*>& entities, Renderer* renderer, Window* window, FrameBuffer* framebuffer);
     };
 }

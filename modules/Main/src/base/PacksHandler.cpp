@@ -10,9 +10,15 @@ void hpms::PacksHandler::ProcessPack(const std::string& pakId,
 {
 
     hpms::FileSystem::MountFS(pakId);
-
+  
     std::vector<std::string> files;
     hpms::FileSystem::EnumerateFiles(files);
+
+      if (files.empty())
+    {
+        LOG_ERROR("Pack {} is empty or does not exists", pakId);
+        RUNTIME_EXCEPTION("Pack {} is empty or does not exists", pakId);
+    }
 
     for (auto& res: files)
     {

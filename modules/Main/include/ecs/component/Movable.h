@@ -7,7 +7,7 @@ namespace hpms
 {
     struct Movable : public hpms::Component
     {
-        Transform3D position{0, 0};
+        Transform2D position{0, 0};
 
         inline const ComponentType Type() const override
         {

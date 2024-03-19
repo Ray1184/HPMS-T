@@ -6,8 +6,7 @@ namespace hpms
 {
 
     enum ComponentType {
-        COMPONENT_SPRITE,
-        COMPONENT_PICTURE,
+        COMPONENT_GRAPHICS,
         COMPONENT_MOVABLE,
         COMPONENT_ANIMATION,
         COMPONENT_CAMERA,

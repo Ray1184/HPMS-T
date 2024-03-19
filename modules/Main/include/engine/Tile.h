@@ -3,24 +3,20 @@
 #include "base/Utils.h"
 
 #ifndef CHUNK_SIZE
-#define CHUNK_SIZE 16 * 16 * 16
+#define CHUNK_SIZE 32
 #endif
 
 #ifndef TILE_SIZE
 #define TILE_SIZE 16
 #endif
 
-#ifndef MAX_TILES_PER_LAYER_ON_SCREEN
-#define MAX_TILES_PER_LAYER_ON_SCREEN 2048
-#endif
-
 namespace hpms
 {
     struct Tile
     {
-        Transform3D position;
-        Transform2D texCoords;
-        Transform2D screenPosition;
+        Transform2D position{0, 0};
+        Transform2D texCoords{0, 0};
+        float depth{0};
 
         inline bool operator==(const Tile& rhs) const
         {
@@ -30,6 +26,26 @@ namespace hpms
         inline bool operator!=(const Tile& rhs) const
         {
             return !(rhs == *this);
+        }
+
+        inline bool operator<(const Tile& rhs) const
+        {
+           return depth < rhs.depth;
+        }
+
+        inline bool operator>(const Tile& rhs) const
+        {
+            return rhs < *this;
+        }
+
+        inline bool operator<=(const Tile& rhs) const
+        {
+            return !(rhs < *this);
+        }
+
+        inline bool operator>=(const Tile& rhs) const
+        {
+            return !(*this < rhs);
         }
     };
 }
@@ -41,9 +57,9 @@ namespace std
     {
         std::size_t operator()(const hpms::Tile& obj) const
         {
-            std::size_t h1 = std::hash<float>{}(obj.position.transform2D.x);
-            std::size_t h2 = std::hash<float>{}(obj.position.transform2D.y);
-            std::size_t h3 = std::hash<float>{}(obj.position.z);
+            std::size_t h1 = std::hash<float>{}(obj.position.x);
+            std::size_t h2 = std::hash<float>{}(obj.position.y);
+            std::size_t h3 = std::hash<float>{}(obj.depth);
             return h1 ^ (h2 << 1) ^ (h3 << 2);
         }
     };

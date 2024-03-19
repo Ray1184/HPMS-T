@@ -27,8 +27,8 @@ void hpms::TilesPoolRenderingOptimizer::RemoveOutOfView(const hpms::Window* wind
 bool hpms::TilesPoolRenderingOptimizer::InsideView(const Tile& tile, const sf::View& view, unsigned int ratio)
 {
 
-    float tileLeft = tile.screenPosition.x;
-    float tileTop = tile.screenPosition.y;
+    float tileLeft = tile.position.x;
+    float tileTop = tile.position.y;
     float tileRight = tileLeft + TILE_SIZE;
     float tileBottom = tileTop + TILE_SIZE;
 

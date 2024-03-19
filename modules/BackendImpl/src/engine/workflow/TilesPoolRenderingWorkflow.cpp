@@ -16,21 +16,10 @@ void hpms::TilesPoolRenderingWorkflow::Render(Window* window, FrameBuffer* frame
 
         auto* tiles = dynamic_cast<hpms::TilesPool*>(item);
 
-        auto sortingByDepthPredicate = [](const hpms::Tile& a, const hpms::Tile& b)
-        {
-            return a.position < b.position;
-        };
         std::vector<Tile> optimizedTiles;
         hpms::TilesPoolRenderingOptimizer::Optimize(window, tiles->GetTiles(), &optimizedTiles);
-        std::sort(optimizedTiles.begin(), optimizedTiles.end(), sortingByDepthPredicate);
+        std::sort(optimizedTiles.begin(), optimizedTiles.end());
 
-#ifndef IGNORE_MAX_TILES_EXCEEDED_ERROR
-        if (optimizedTiles.size() > MAX_TILES_PER_LAYER_ON_SCREEN)
-        {
-            LOG_ERROR("The maximum number of {} tiles that should be rendered on screen per layer has been exceeded ({}), define #IGNORE_MAX_TILES_EXCEEDED_ERROR to ignore this error (note: this can cause a framerate drop on lower end systems)", MAX_TILES_PER_LAYER_ON_SCREEN, optimizedTiles.size());
-            RUNTIME_EXCEPTION("The maximum number of {} tiles that should be rendered on screen per layer has been exceeded ({}), define #IGNORE_MAX_TILES_EXCEEDED_ERROR to ignore this error (note: this can cause a framerate drop on lower end systems)", MAX_TILES_PER_LAYER_ON_SCREEN, optimizedTiles.size());
-        }
-#endif
         std::vector<sf::Vertex> vertexArray(optimizedTiles.size() * 6);
         vertexBuffer->create(optimizedTiles.size() * 6);
         unsigned int index = 0;
@@ -38,8 +27,8 @@ void hpms::TilesPoolRenderingWorkflow::Render(Window* window, FrameBuffer* frame
         for (auto& tile: optimizedTiles)
         {
             float s = TILE_SIZE;
-            float px = tile.screenPosition.x;
-            float py = tile.screenPosition.y;
+            float px = tile.position.x * s;
+            float py = tile.position.y * s;
             float tx = tile.texCoords.x * s;
             float ty = tile.texCoords.y * s;
 

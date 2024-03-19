@@ -22,46 +22,26 @@ namespace hpms
         {
             return !(rhs == *this);
         }
-    };
 
-    struct Transform3D
-    {
-        Transform2D transform2D;
-        float z{0};
-
-        inline bool operator==(const Transform3D& rhs) const
+        inline bool operator<(const Transform2D& rhs) const
         {
-            return transform2D == rhs.transform2D &&
-                   z == rhs.z;
+            return y < rhs.y;
         }
 
-        inline bool operator!=(const Transform3D& rhs) const
-        {
-            return !(rhs == *this);
-        }
-
-        inline bool operator<(const Transform3D& rhs) const
-        {
-            if (z == rhs.z)
-            {
-                return transform2D.y < rhs.transform2D.y;
-            }
-            return z < rhs.z;
-        }
-
-        inline bool operator>(const Transform3D& rhs) const
+        inline bool operator>(const Transform2D& rhs) const
         {
             return rhs < *this;
         }
 
-        inline bool operator<=(const Transform3D& rhs) const
+        inline bool operator<=(const Transform2D& rhs) const
         {
             return !(rhs < *this);
         }
 
-        inline bool operator>=(const Transform3D& rhs) const
+        inline bool operator>=(const Transform2D& rhs) const
         {
             return !(*this < rhs);
         }
     };
+
 }
