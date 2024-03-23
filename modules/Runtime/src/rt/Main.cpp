@@ -17,7 +17,7 @@ int main()
     SAFE_DELETE(hpms::ResourceSupplierImpl, resSupplier);
 
 
-    std::stringstream dump = MEMORY_DUMP;
+    const std::stringstream dump = MEMORY_DUMP;
     std::cout << dump.str() << std::endl;
 
 

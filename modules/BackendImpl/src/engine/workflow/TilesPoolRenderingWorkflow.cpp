@@ -9,28 +9,28 @@
 
 void hpms::TilesPoolRenderingWorkflow::Render(Window* window, FrameBuffer* framebuffer, Drawable* item)
 {
-    sf::VertexBuffer* vertexBuffer = hpms::VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::Triangles, 0);
+    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::Triangles, 0);
 
     if (item->IsChanged())
     {
 
-        auto* tiles = dynamic_cast<hpms::TilesPool*>(item);
+        auto* tiles = dynamic_cast<TilesPool*>(item);
 
         std::vector<Tile> optimizedTiles;
-        hpms::TilesPoolRenderingOptimizer::Optimize(window, tiles->GetTiles(), &optimizedTiles);
-        std::sort(optimizedTiles.begin(), optimizedTiles.end());
+        TilesPoolRenderingOptimizer::Optimize(window, tiles->GetTiles(), &optimizedTiles);
+        std::ranges::sort(optimizedTiles);
 
         std::vector<sf::Vertex> vertexArray(optimizedTiles.size() * 6);
         vertexBuffer->create(optimizedTiles.size() * 6);
         unsigned int index = 0;
 
-        for (auto& tile: optimizedTiles)
+        for (auto& [position, texCoords, depth]: optimizedTiles)
         {
-            float s = TILE_SIZE;
-            float px = tile.position.x * s;
-            float py = tile.position.y * s;
-            float tx = tile.texCoords.x * s;
-            float ty = tile.texCoords.y * s;
+            constexpr float s = TILE_SIZE;
+            const float px = position.x * s;
+            const float py = position.y * s;
+            const float tx = texCoords.x * s;
+            const float ty = texCoords.y * s;
 
             vertexArray[index + 0].position = sf::Vector2f(px, py);
             vertexArray[index + 1].position = sf::Vector2f(px, py + s);
@@ -54,8 +54,8 @@ void hpms::TilesPoolRenderingWorkflow::Render(Window* window, FrameBuffer* frame
 
         LOG_TRACE("VertexBuffer up to date for item {}", item->GetId());
     }
-    auto* sfRt = dynamic_cast<hpms::FrameBufferImpl*>(framebuffer)->GetNative();
-    auto* sfTexture = dynamic_cast<hpms::TextureImpl*>(item->GetTexture())->GetNative();
+    auto* sfRt = dynamic_cast<FrameBufferImpl*>(framebuffer)->GetNative();
+    const auto* sfTexture = dynamic_cast<TextureImpl*>(item->GetTexture())->GetNative();
 
     sf::RenderStates rs;
     rs.texture = sfTexture;

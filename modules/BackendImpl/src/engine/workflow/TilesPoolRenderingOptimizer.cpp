@@ -3,16 +3,16 @@
 
 #include <unordered_set>
 
-void hpms::TilesPoolRenderingOptimizer::Optimize(Window* window, std::unordered_set<Tile>* in, std::vector<Tile>* out)
+void hpms::TilesPoolRenderingOptimizer::Optimize(Window* window, const std::unordered_set<Tile>* in, std::vector<Tile>* out)
 {
-    const auto& sfWindow = dynamic_cast<hpms::WindowImpl*>(window)->GetNative();
+    const auto& sfWindow = dynamic_cast<WindowImpl*>(window)->GetNative();
     RemoveOutOfView(window, in, out, sfWindow);
 }
 
-void hpms::TilesPoolRenderingOptimizer::RemoveOutOfView(const hpms::Window* window, const std::unordered_set<Tile>* in, std::vector<Tile>* out, sf::RenderWindow* const& sfWindow)
+void hpms::TilesPoolRenderingOptimizer::RemoveOutOfView(const Window* window, const std::unordered_set<Tile>* in, std::vector<Tile>* out, sf::RenderWindow* const& sfWindow)
 {
     auto& view = sfWindow->getView();
-    auto pixelationRatio = window->GetSettings().pixelationRatio;
+    const auto pixelationRatio = window->GetSettings().pixelationRatio;
     for (const auto& tile: *in)
     {
         if (InsideView(tile, view, pixelationRatio))
@@ -24,22 +24,20 @@ void hpms::TilesPoolRenderingOptimizer::RemoveOutOfView(const hpms::Window* wind
 }
 
 
-bool hpms::TilesPoolRenderingOptimizer::InsideView(const Tile& tile, const sf::View& view, unsigned int ratio)
+bool hpms::TilesPoolRenderingOptimizer::InsideView(const Tile& tile, const sf::View& view, const unsigned int ratio)
 {
+    const float tileLeft = tile.position.x;
+    const float tileTop = tile.position.y;
+    const float tileRight = tileLeft + TILE_SIZE;
+    const float tileBottom = tileTop + TILE_SIZE;
 
-    float tileLeft = tile.position.x;
-    float tileTop = tile.position.y;
-    float tileRight = tileLeft + TILE_SIZE;
-    float tileBottom = tileTop + TILE_SIZE;
 
+    const sf::FloatRect viewBounds = view.getViewport();
+    const float viewLeft = (view.getCenter().x - viewBounds.width / 2 * view.getSize().x) / static_cast<float>(ratio);
+    const float viewRight = (view.getCenter().x + viewBounds.width / 2 * view.getSize().x) / static_cast<float>(ratio);
+    const float viewTop = (view.getCenter().y - viewBounds.height / 2 * view.getSize().y) / static_cast<float>(ratio);
+    const float viewBottom = (view.getCenter().y + viewBounds.height / 2 * view.getSize().y) / static_cast<float>(ratio);
 
-    sf::FloatRect viewBounds = view.getViewport();
-    float viewLeft = (view.getCenter().x - (viewBounds.width / 2) * view.getSize().x) / ratio;
-    float viewRight = (view.getCenter().x + (viewBounds.width / 2) * view.getSize().x) / ratio;
-    float viewTop = (view.getCenter().y - (viewBounds.height / 2) * view.getSize().y) / ratio;
-    float viewBottom = (view.getCenter().y + (viewBounds.height / 2) * view.getSize().y) / ratio;
-
-    return (tileRight >= viewLeft && tileLeft <= viewRight &&
-            tileBottom >= viewTop && tileTop <= viewBottom);
-
+    return tileRight >= viewLeft && tileLeft <= viewRight &&
+           tileBottom >= viewTop && tileTop <= viewBottom;
 }

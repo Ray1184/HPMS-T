@@ -34,14 +34,12 @@ unsigned int hpms::FileSystem::GetResourceFileSize(const std::string& path)
     if (PHYSFS_exists(path.c_str()))
     {
         PHYSFS_file* file = PHYSFS_openRead(path.c_str());
-        unsigned int fileLength = PHYSFS_fileLength(file);
+        const unsigned int fileLength = PHYSFS_fileLength(file);
         PHYSFS_close(file);
         return fileLength;
-    } else
-    {
-        LOG_ERROR("Impossible to retrieve {} from mounted archive", path);
-        RUNTIME_EXCEPTION("Impossible to retrieve {} from mounted archive", path);
     }
+    LOG_ERROR("Impossible to retrieve {} from mounted archive", path);
+    RUNTIME_EXCEPTION("Impossible to retrieve {} from mounted archive", path);
 }
 
 void hpms::FileSystem::LoadResource(const std::string& path, unsigned int fileLength, unsigned int* size, void* buffer)
@@ -49,7 +47,7 @@ void hpms::FileSystem::LoadResource(const std::string& path, unsigned int fileLe
     if (PHYSFS_exists(path.c_str()))
     {
         PHYSFS_file* file = PHYSFS_openRead(path.c_str());
-        unsigned int lengthRead = PHYSFS_readBytes(file, buffer, fileLength);
+        const unsigned int lengthRead = PHYSFS_readBytes(file, buffer, fileLength);
         *size = lengthRead;
         PHYSFS_close(file);
     } else

@@ -1,10 +1,10 @@
 #include "engine/renderable/TilesPool.h"
 
-hpms::TilesPool::TilesPool(unsigned int layer, hpms::Texture* texture)
+hpms::TilesPool::TilesPool(const unsigned int layer, Texture* texture, const std::string& id)
 {
     this->layer = layer;
     this->texture = texture;
-    this->id = hpms::Strings::UniqueId();
+    this->id = id;
 }
 
 std::unordered_set<hpms::Tile>* hpms::TilesPool::GetTiles()
@@ -12,9 +12,9 @@ std::unordered_set<hpms::Tile>* hpms::TilesPool::GetTiles()
     return &tiles;
 }
 
-void hpms::TilesPool::AddTile(hpms::Tile& t)
+void hpms::TilesPool::AddTile(const Tile& tile)
 {
     SetChanged(true);
-    tiles.insert(t);
+    tiles.insert(tile);
 }
 

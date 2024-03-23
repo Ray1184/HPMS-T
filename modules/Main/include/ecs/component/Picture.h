@@ -10,9 +10,9 @@ namespace hpms
 
     struct Picture : public hpms::Graphics
     {
-        inline const ComponentType Type() const override
+        ComponentType Type() const override
         {
-            return COMPONENT_GRAPHICS;
+            return COMPONENT_PICTURE;
         }
     };
 }

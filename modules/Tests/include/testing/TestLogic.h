@@ -6,6 +6,7 @@
 #include "engine/workflow/VertexBufferProvider.h"
 #include "ecs/component/Components.h"
 #include "ecs/system/Systems.h"
+#include "ecs/SystemFactory.h"
 #include "ecs/Entity.h"
 
 #include <random>
@@ -13,28 +14,38 @@
 
 namespace hpms
 {
-    class TestLogic : public hpms::GameLogic
+    class TestLogic : public GameLogic
     {
     private:
-        hpms::ResourceSupplierImpl* resSupplier;
-        std::vector<hpms::Entity*> entities;
+        ResourceSupplierImpl* resSupplier;
+        std::vector<Entity*> entities;
 
     public:
-        [[noreturn]] inline virtual void Init() override
+        [[noreturn]] virtual void Init() override
         {
 
-            hpms::Logs::logLevel = hpms::LogLevel::TRACE;
+            Logs::logLevel = TRACE;
             resSupplier = SAFE_NEW(hpms::ResourceSupplierImpl);
-            hpms::ResourcesHandler::PreloadResources("pak1.zip", resSupplier);
-            auto* backTex = hpms::ResourcesHandler::Provide<hpms::Texture>("pak1.zip", "/textures/background.png");
-            auto* tilemapTex = hpms::ResourcesHandler::Provide<hpms::Texture>("pak1.zip", "/textures/tileset_custom_48_48.png");
-            auto* pic = SAFE_NEW(hpms::PictureQuad, 0, backTex, hpms::Transform2D{0, 0});
-            Entity* picEntity = SAFE_NEW(hpms::Entity);
+            ResourcesHandler::PreloadResources("pak1.zip", resSupplier);
+            //auto* backTex = hpms::ResourcesHandler::Provide<hpms::Texture>("pak1.zip", "/textures/background.png");
+            //auto* tilemapTex = hpms::ResourcesHandler::Provide<hpms::Texture>("pak1.zip", "/textures/tileset_custom_48_48.png");
+            // auto* pic = SAFE_NEW(hpms::PictureQuad, 0, backTex, hpms::Transform2D{0, 0});
+            auto* picEntity = SAFE_NEW(hpms::Entity, "pic_01");
             auto* compPic = SAFE_NEW(hpms::Picture);
             compPic->textureName = "/textures/background.png";
             compPic->pakId = "pak1.zip";
             compPic->layer = 0;
+            compPic->id = Strings::UniqueId();
             picEntity->AddComponent(compPic);
+
+            auto* mapEntity = SAFE_NEW(hpms::Entity, "map_01");
+            auto* compMap = SAFE_NEW(hpms::Sprite);
+            compMap->textureName = "/textures/tileset_custom_48_48.png";
+            compMap->pakId = "pak1.zip";
+            compMap->layer = 1;
+            compMap->id = Strings::UniqueId();
+            FillChunkRandom(compMap, 1);
+            mapEntity->AddComponent(compMap);
             //auto* chunk1 = SAFE_NEW(hpms::TilesPool, 1, tilemapTex);
             //auto* chunk2 = SAFE_NEW(hpms::TilesPool);
             //auto* chunk3 = SAFE_NEW(hpms::TilesPool);
@@ -44,7 +55,7 @@ namespace hpms
             //auto* chunk7 = SAFE_NEW(hpms::TilesPool);
             //auto* chunk8 = SAFE_NEW(hpms::TilesPool);
 
-            //FillChunkRandom(chunk1, 8);
+
             //FillChunkRandom(chunk2, 1);
             //FillChunkRandom(chunk3, 1);
             //FillChunkRandom(chunk4, 1);
@@ -54,6 +65,7 @@ namespace hpms
             //FillChunkRandom(chunk8, 1);
 
             entities.push_back(picEntity);
+            entities.push_back(mapEntity);
             //drawables.push_back(chunk1);
             //drawables.push_back(chunk2);
             //drawables.push_back(chunk3);
@@ -64,7 +76,7 @@ namespace hpms
             //drawables.push_back(chunk8);
         }
 
-        void FillChunkRandom(TilesPool* chunk, int iter) const
+        void FillChunkRandom(Sprite* sprite, int iter) const
         {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -74,9 +86,9 @@ namespace hpms
 
             for (int n = 0; n < iter; n++)
             {
-                for (int x = 0; x < 20; x++)
+                for (int x = -32; x < 32; x++)
                 {
-                    for (int y = 0; y < 15; y++)
+                    for (int y = -32; y < 32; y++)
                     {
                         //for (int z = -8; z < 8; z++)
                         {
@@ -84,37 +96,44 @@ namespace hpms
                             int randomY = 1;//distribution(gen);
                             int randomZ = 1;//distribution(gen);
                             Tile t{(float) x * randomX, (float) y * randomY, 0, 0, 0};
-                            chunk->AddTile(t);
+                            sprite->tiles.push_back(t);
                         }
                     }
                 }
             }
         }
 
-        inline virtual void HandleInput(hpms::InputHandler* inputHandler) override
+        void HandleInput(InputHandler* inputHandler) override
         {
 
         }
 
-        inline virtual void Update(float tpf) override
+        void Update(float tpf) override
         {
         }
 
-        inline virtual void Render(Renderer* renderer, Window* window, FrameBuffer* framebuffer) override
+        void Render(Renderer* renderer, Window* window, FrameBuffer* framebuffer) override
         {
-            RenderSystem::Update(entities, renderer, window, framebuffer);
+            System<RenderSystemParams>* rs = SystemFactory::GetSystem<RenderSystemParams>(SYSTEM_RENDERER);
+            RenderSystemParams params{renderer, window, framebuffer};
+            rs->Update(entities, &params);
             //renderer->Render(window, framebuffer, &drawables);
         }
 
-        inline virtual void Cleanup() override
+        void Cleanup() override
         {
-            hpms::VertexBufferProvider::ClearAllBuffers();
-            for (auto* item: entities)
+            System<RenderSystemParams>* rs = SystemFactory::GetSystem<RenderSystemParams>(SYSTEM_RENDERER);
+            std::vector<Entity*> dummy;
+            rs->Cleanup(dummy, nullptr);
+            VertexBufferProvider::ClearAllBuffers();
+            for (auto* entity: entities)
             {
-                SAFE_DELETE(hpms::Entity, item);
+                entity->ForeachComponent([](ComponentType t, Component* c)
+                                         { SAFE_DELETE(Component, c); });
+                SAFE_DELETE(hpms::Entity, entity);
             }
 
-            hpms::ResourcesHandler::UnloadResources("pak1.zip", resSupplier);
+            ResourcesHandler::UnloadResources("pak1.zip", resSupplier);
             SAFE_DELETE(hpms::ResourceSupplierImpl, resSupplier);
         }
     };

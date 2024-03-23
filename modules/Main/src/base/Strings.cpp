@@ -28,7 +28,7 @@ std::string hpms::Strings::ReplaceAll(const std::string& source, const std::stri
 
 std::string hpms::Strings::GetFilenameExtension(const std::string& filename)
 {
-    std::filesystem::path filePath(filename);
+    const std::filesystem::path filePath(filename);
     return filePath.extension().string();
 }
 
@@ -55,10 +55,10 @@ std::vector<std::string> hpms::Strings::Split(const std::string& stringToSplit, 
 {
     std::vector<std::string> elems;
 
-    std::regex rgx(reg);
+    const std::regex rgx(reg);
 
     std::sregex_token_iterator iter(stringToSplit.begin(), stringToSplit.end(), rgx, -1);
-    std::sregex_token_iterator end;
+    const std::sregex_token_iterator end;
 
     while (iter != end)
     {
@@ -71,21 +71,21 @@ std::vector<std::string> hpms::Strings::Split(const std::string& stringToSplit, 
 
 std::string hpms::Strings::GetFileName(const std::string& s)
 {
-    std::filesystem::path filePath(s);
+    const std::filesystem::path filePath(s);
     return filePath.filename().string();
 }
 
 std::string hpms::Strings::Trim(const std::string& s)
 {
-    auto wsfront = std::find_if_not(s.begin(), s.end(), [](int c)
+    const auto wsfront = std::find_if_not(s.begin(), s.end(), [](int c)
     {
         return std::isspace(c);
     });
-    auto wsback = std::find_if_not(s.rbegin(), s.rend(), [](int c)
+    const auto wsback = std::find_if_not(s.rbegin(), s.rend(), [](int c)
     {
         return std::isspace(c);
     }).base();
-    return (wsback <= wsfront ? std::string() : std::string(wsfront, wsback));
+    return wsback <= wsfront ? std::string() : std::string(wsfront, wsback);
 }
 
 std::string hpms::Strings::UpperCase(std::string s)

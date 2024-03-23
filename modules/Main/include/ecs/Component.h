@@ -1,12 +1,11 @@
 #pragma once
 
-#include <string>
-
 namespace hpms
 {
 
     enum ComponentType {
-        COMPONENT_GRAPHICS,
+        COMPONENT_SPRITE,
+        COMPONENT_PICTURE,
         COMPONENT_MOVABLE,
         COMPONENT_ANIMATION,
         COMPONENT_CAMERA,
@@ -15,9 +14,10 @@ namespace hpms
         COMPONENT_TEXT
     };
 
-    class Component
+    struct Component
     {
-    public:
-        virtual const ComponentType Type() const = 0;
+        virtual ~Component() = default;
+
+        [[nodiscard]] virtual ComponentType Type() const = 0;
     };
 }

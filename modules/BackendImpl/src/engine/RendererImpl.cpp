@@ -5,14 +5,14 @@
 
 #include <algorithm>
 
-void hpms::RendererImpl::Render(hpms::Window* window, hpms::FrameBuffer* framebuffer,
-                                std::vector<hpms::Drawable*>* drawables)
+void hpms::RendererImpl::Render(Window* window, FrameBuffer* framebuffer,
+                                std::vector<Drawable*>* drawables)
 {
-    auto* sfWindow = dynamic_cast<hpms::WindowImpl*>(window)->GetNative();
-    auto* sfRt = dynamic_cast<hpms::FrameBufferImpl*>(framebuffer)->GetNative();
+    auto* sfWindow = dynamic_cast<WindowImpl*>(window)->GetNative();
+    auto* sfRt = dynamic_cast<FrameBufferImpl*>(framebuffer)->GetNative();
 
     sfRt->clear(sf::Color::Black);
-    auto sortingByLayerPredicate = [](hpms::Drawable* a, hpms::Drawable* b)
+    auto sortingByLayerPredicate = [](Drawable* a, Drawable* b)
     {
         return a->GetLayer() < b->GetLayer();
     };
@@ -20,7 +20,7 @@ void hpms::RendererImpl::Render(hpms::Window* window, hpms::FrameBuffer* framebu
 
     for (auto* item: *drawables)
     {
-        auto* workflow = hpms::RenderingWorkflowFactory::GetRenderingWorkflow(item->GetType());
+        auto* workflow = RenderingWorkflowFactory::GetRenderingWorkflow(item->GetType());
         workflow->Render(window, framebuffer, item);
     }
     sfRt->display();

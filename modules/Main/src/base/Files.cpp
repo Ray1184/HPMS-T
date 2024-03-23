@@ -9,18 +9,18 @@
 
 std::string hpms::Files::GetAbsolutePath(const std::string& relativePath)
 {
-    auto dir = std::filesystem::weakly_canonical(relativePath);
+    const auto dir = std::filesystem::weakly_canonical(relativePath);
     return dir.string();
 }
 
-void hpms::Files::ProcessFileLines(const std::string& fileName, hpms::FileProcessorCallback& callback)
+void hpms::Files::ProcessFileLines(const std::string& fileName, FileProcessorCallback& callback)
 {
     std::ifstream file(fileName);
     if (file)
     {
         for (std::string line; getline(file, line);)
         {
-            callback(hpms::Strings::Trim(line));
+            callback(Strings::Trim(line));
         }
     } else
     {
@@ -39,17 +39,15 @@ std::string hpms::Files::ReadFile(const std::string& fileName)
         buffer << file.rdbuf();
         file.close();
         return buffer.str();
-    } else
-    {
-        LOG_ERROR("Cannot open/read file with name {}", fileName);
-        RUNTIME_EXCEPTION("Cannot open/read file with name {}", fileName);
     }
+    LOG_ERROR("Cannot open/read file with name {}", fileName);
+    RUNTIME_EXCEPTION("Cannot open/read file with name {}", fileName);
 }
 
 bool hpms::Files::FileExists(const std::string& fileName)
 {
     std::ifstream file(fileName);
-    bool exists = file.good();
+    const bool exists = file.good();
     file.close();
     return exists;
 }

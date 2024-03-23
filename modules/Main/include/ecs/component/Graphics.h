@@ -14,5 +14,6 @@ namespace hpms
         std::string pakId;
         bool visible{true};
         unsigned int layer;
+        std::string id;
     };
 }

@@ -10,11 +10,11 @@ namespace hpms
 {
     struct Sprite : public hpms::Graphics
     {
-        std::vector<hpms::Tile> tiles;
+        std::vector<Tile> tiles;
 
-        inline const ComponentType Type() const override
+        ComponentType Type() const override
         {
-            return COMPONENT_GRAPHICS;
+            return COMPONENT_SPRITE;
         }
     };
 }

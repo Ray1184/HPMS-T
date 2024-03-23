@@ -5,15 +5,15 @@
 #include <ctime>
 #include <iomanip>
 
-hpms::LogLevel hpms::Logs::logLevel = hpms::LogLevel::INFO;
+hpms::LogLevel hpms::Logs::logLevel = INFO;
 
 
-void hpms::Logs::Log(hpms::LogLevel level, const std::string& caller, const std::string& message)
+void hpms::Logs::Log(LogLevel level, const std::string& caller, const std::string& message)
 {
     if (level >= logLevel)
     {
         std::stringstream ss;
-        std::time_t t = std::time(nullptr);
+        const std::time_t t = std::time(nullptr);
         std::tm tm = {};
         localtime_s(&tm, &t);
         char buffer[20];
@@ -28,22 +28,22 @@ void hpms::Logs::Log(hpms::LogLevel level, const std::string& caller, const std:
     }
 }
 
-std::string hpms::Logs::GetLevelDescription(hpms::LogLevel level)
+std::string hpms::Logs::GetLevelDescription(LogLevel level)
 {
     switch (level)
     {
-        case LogLevel::TRACE:
-            return "TRACE";
-        case LogLevel::DEBUG:
-            return "DEBUG";
-        case LogLevel::INFO:
-            return "INFO ";
-        case LogLevel::WARN:
-            return "WARN ";
-        case LogLevel::ERROR:
-            return "ERROR";
-        default:
-            return "N/A  ";
+    case TRACE:
+        return "TRACE";
+    case DEBUG:
+        return "DEBUG";
+    case INFO:
+        return "INFO ";
+    case WARN:
+        return "WARN ";
+    case ERROR:
+        return "ERROR";
+    default:
+        return "N/A  ";
     }
 }
 

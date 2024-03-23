@@ -8,16 +8,16 @@
 
 void hpms::PictureRenderingWorkflow::Render(Window* window, FrameBuffer* framebuffer, Drawable* item)
 {
-    sf::VertexBuffer* vertexBuffer = hpms::VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::TriangleStrip, 4);
+    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::TriangleStrip, 4);
 
     if (item->IsChanged())
     {
         sf::Vertex vertexArray[4];
-        auto* pic = dynamic_cast<hpms::PictureQuad*>(item);
-        auto* image = pic->GetImage();
+        auto* pic = dynamic_cast<PictureQuad*>(item);
+        const auto* image = pic->GetImage();
 
-        float px = image->position.x;
-        float py = image->position.y;
+        const float px = image->position.x;
+        const float py = image->position.y;
 
         vertexArray[0].position = sf::Vector2f(px, py);
         vertexArray[1].position = sf::Vector2f(px, py + image->height);
@@ -37,8 +37,8 @@ void hpms::PictureRenderingWorkflow::Render(Window* window, FrameBuffer* framebu
 
     }
 
-    auto* sfRt = dynamic_cast<hpms::FrameBufferImpl*>(framebuffer)->GetNative();
-    auto* sfTexture = dynamic_cast<hpms::TextureImpl*>(item->GetTexture())->GetNative();
+    auto* sfRt = dynamic_cast<FrameBufferImpl*>(framebuffer)->GetNative();
+    const auto* sfTexture = dynamic_cast<TextureImpl*>(item->GetTexture())->GetNative();
 
     sfRt->draw(*vertexBuffer, sfTexture);
 }

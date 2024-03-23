@@ -13,10 +13,10 @@ namespace hpms
         {
             switch (resType)
             {
-                case hpms::ResourceType::TEXTURES:
-                    return SAFE_NEW(hpms::TextureImpl);
-                default:
-                    return nullptr;
+            case hpms::ResourceType::TEXTURES:
+                return SAFE_NEW(hpms::TextureImpl);
+            default:
+                return nullptr;
             }
 
         }
@@ -25,10 +25,10 @@ namespace hpms
         {
             switch (resType)
             {
-                case hpms::ResourceType::TEXTURES:
-                    auto* ptr = dynamic_cast<TextureImpl*>(resource);
-                    SAFE_DELETE(hpms::TextureImpl, ptr);
-                    return;
+            case hpms::ResourceType::TEXTURES:
+                auto* ptr = dynamic_cast<TextureImpl*>(resource);
+                SAFE_DELETE(hpms::TextureImpl, ptr);
+                return;
             }
         }
     };

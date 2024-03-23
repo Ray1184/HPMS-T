@@ -11,6 +11,6 @@ namespace hpms
     class Renderer
     {
     public:
-        virtual void Render(hpms::Window* window, hpms::FrameBuffer* framebuffer, std::vector<hpms::Drawable*>* drawables) = 0;
+        virtual void Render(Window* window, FrameBuffer* framebuffer, std::vector<Drawable*>* drawables) = 0;
     };
 }

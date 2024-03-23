@@ -36,7 +36,7 @@ int main()
     SAFE_DELETE(hpms::WindowImpl, window);
 
 
-    std::stringstream dump = MEMORY_DUMP;
+    const std::stringstream dump = MEMORY_DUMP;
     std::cout << dump.str() << std::endl;
     return 0;
 

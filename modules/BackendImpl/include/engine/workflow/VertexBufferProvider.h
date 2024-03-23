@@ -1,7 +1,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <functional>
 #include <SFML/Graphics.hpp>
 
 namespace hpms
@@ -12,7 +11,7 @@ namespace hpms
         static std::unordered_map<std::string, sf::VertexBuffer> buffers;
 
     public:
-        inline static void ClearAllBuffers()
+        static void ClearAllBuffers()
         {
             for (const auto& item: buffers)
             {
@@ -21,7 +20,7 @@ namespace hpms
             buffers.clear();
         }
 
-        inline static sf::VertexBuffer* GetVertexBuffer(const std::string& id, sf::PrimitiveType primitiveType, unsigned long long vertices)
+        static sf::VertexBuffer* GetVertexBuffer(const std::string& id, sf::PrimitiveType primitiveType, unsigned long long vertices)
         {
             if (!buffers.contains(id))
             {

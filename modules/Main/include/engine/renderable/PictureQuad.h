@@ -18,18 +18,18 @@ namespace hpms
         hpms::Image image;
 
     public:
-        PictureQuad(unsigned int layer, Texture* texture, Transform2D position);
+        PictureQuad(unsigned int layer, Texture* texture, Transform2D position, const std::string& id);
 
         Image* GetImage();
 
-        [[nodiscard]] inline RenderType GetType() const override
+        [[nodiscard]] RenderType GetType() const override
         {
             return RenderType::DRAWABLE_PICTURE;
         }
 
-        [[nodiscard]] inline const std::string GetId() const override
+        [[nodiscard]] const std::string GetId() const override
         {
-            return "PictureQuad/" + id;
+            return "PictureQuad" + id;
         }
     };
 }

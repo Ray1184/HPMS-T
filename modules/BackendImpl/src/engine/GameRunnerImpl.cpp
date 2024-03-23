@@ -6,7 +6,7 @@
 void hpms::GameRunnerImpl::Run()
 {
     sf::Clock clock;
-    auto* sfWindow = dynamic_cast<hpms::WindowImpl*>(window);
+    auto* sfWindow = dynamic_cast<WindowImpl*>(window);
     logic->Init();
 #ifndef NDEBUG
     sf::Clock secondClock;
@@ -24,11 +24,11 @@ void hpms::GameRunnerImpl::Run()
             }
         }
         logic->HandleInput(inputHandler);
-        float tpf = clock.restart().asSeconds();
+        const float tpf = clock.restart().asSeconds();
 #ifndef NDEBUG
         if (secondClock.getElapsedTime().asSeconds() > 1)
         {
-            int framerate = static_cast<int>(1 / tpf);
+            const int framerate = static_cast<int>(1 / tpf);
             sfWindow->GetNative()->setTitle(window->GetSettings().appName + " [" + std::to_string(framerate) + " FPS]");
             secondClock.restart();
         }
@@ -39,11 +39,11 @@ void hpms::GameRunnerImpl::Run()
     logic->Cleanup();
 }
 
-hpms::GameRunnerImpl::GameRunnerImpl(hpms::Window* window,
-                                     hpms::FrameBuffer* framebuffer,
-                                     hpms::GameLogic* logic,
-                                     hpms::InputHandler* inputHandler,
-                                     hpms::Renderer* renderer) : window(window),
+hpms::GameRunnerImpl::GameRunnerImpl(Window* window,
+                                     FrameBuffer* framebuffer,
+                                     GameLogic* logic,
+                                     InputHandler* inputHandler,
+                                     Renderer* renderer) : window(window),
                                                                  framebuffer(framebuffer),
                                                                  logic(logic),
                                                                  inputHandler(inputHandler),

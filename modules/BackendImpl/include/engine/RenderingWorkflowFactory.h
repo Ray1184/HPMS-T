@@ -15,13 +15,13 @@ namespace hpms
             static hpms::TilesPoolRenderingWorkflow trw;
             switch (type)
             {
-                case RenderType::DRAWABLE_PICTURE:
-                    return &prw;
-                case RenderType::DRAWABLE_TILES_POOL:
-                    return &trw;
-                default:
-                    LOG_ERROR("Rendering workflow not implemented");
-                    RUNTIME_EXCEPTION("Rendering workflow not implemented");
+            case RenderType::DRAWABLE_PICTURE:
+                return &prw;
+            case RenderType::DRAWABLE_TILES_POOL:
+                return &trw;
+            default:
+                LOG_ERROR("Rendering workflow not implemented");
+                RUNTIME_EXCEPTION("Rendering workflow not implemented");
             }
         }
     };

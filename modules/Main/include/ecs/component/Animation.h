@@ -18,7 +18,7 @@ namespace hpms
         float tpf{1};
         std::vector<hpms::Tile> tiles;
 
-        inline const ComponentType Type() const override
+        ComponentType Type() const override
         {
             return COMPONENT_ANIMATION;
         }

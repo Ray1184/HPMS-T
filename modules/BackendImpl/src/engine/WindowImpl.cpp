@@ -1,8 +1,9 @@
 #include "engine/WindowImpl.h"
+#include "base/Utils.h"
 
 hpms::WindowImpl::WindowImpl(const WindowSettings& settings) : settings(settings)
 {
-    auto style = settings.fullscreen ? sf::Style::Fullscreen : sf::Style::Default;
+    const auto style = settings.fullscreen ? sf::Style::Fullscreen : sf::Style::Default;
     sfmlWindow = SAFE_NEW(sf::RenderWindow, sf::VideoMode(settings.width * settings.pixelationRatio, settings.height * settings.pixelationRatio), settings.appName, style);
     sfmlWindow->setVerticalSyncEnabled(settings.vSync);
     sfmlWindow->setFramerateLimit(settings.framerateLimit);

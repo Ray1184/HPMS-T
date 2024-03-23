@@ -9,27 +9,28 @@
 
 namespace hpms
 {
-    class TilesPool : public hpms::Drawable
+    class TilesPool : public Drawable
     {
     private:
         std::string id;
-        std::unordered_set<hpms::Tile> tiles;
+        std::unordered_set<Tile> tiles;
 
     public:
-        TilesPool(unsigned int layer, Texture* texture);
 
-        void AddTile(Tile& tile);
+        TilesPool(unsigned int layer, Texture* texture, const std::string& id);
 
-        std::unordered_set<hpms::Tile>* GetTiles();
+        void AddTile(const Tile& tile);
 
-        [[nodiscard]] inline RenderType GetType() const override
+        std::unordered_set<Tile>* GetTiles();
+
+        [[nodiscard]] RenderType GetType() const override
         {
-            return RenderType::DRAWABLE_TILES_POOL;
+            return DRAWABLE_TILES_POOL;
         }
 
-        [[nodiscard]] inline const std::string GetId() const override
+        [[nodiscard]] const std::string GetId() const override
         {
-            return "TilesPool/" + id;
+            return "TilesPool" + id;
         }
     };
 }

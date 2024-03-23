@@ -15,7 +15,7 @@ unsigned int hpms::TextureImpl::Height()
     return sfmlTexture->getSize().y;
 }
 
-void hpms::TextureImpl::Swap(hpms::Texture* other)
+void hpms::TextureImpl::Swap(Texture* other)
 {
     auto* sfmlOther = dynamic_cast<TextureImpl*>(other)->GetNative();
     sfmlTexture->swap(*sfmlOther);

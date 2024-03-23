@@ -9,7 +9,7 @@ namespace hpms
     {
         Transform2D position{0, 0};
 
-        inline const ComponentType Type() const override
+        ComponentType Type() const override
         {
             return COMPONENT_MOVABLE;
         }

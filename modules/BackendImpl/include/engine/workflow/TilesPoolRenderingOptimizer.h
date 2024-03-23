@@ -12,12 +12,12 @@ namespace hpms
     class TilesPoolRenderingOptimizer
     {
     private:
-        static bool InsideView(const Tile& tile, const sf::View& window, unsigned int ratio);
+        static bool InsideView(const Tile& tile, const sf::View& view, unsigned int ratio);
 
         static void RemoveOutOfView(const Window* window, const std::unordered_set<Tile>* in, std::vector<Tile>* out, sf::RenderWindow* const& sfWindow);
 
     public:
-        static void Optimize(hpms::Window* window, std::unordered_set<Tile>* in, std::vector<Tile>* out);
+        static void Optimize(Window* window, const std::unordered_set<Tile>* in, std::vector<Tile>* out);
 
 
     };

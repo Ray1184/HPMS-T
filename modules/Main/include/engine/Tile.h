@@ -18,32 +18,32 @@ namespace hpms
         Transform2D texCoords{0, 0};
         float depth{0};
 
-        inline bool operator==(const Tile& rhs) const
+        bool operator==(const Tile& rhs) const
         {
             return position == rhs.position;
         }
 
-        inline bool operator!=(const Tile& rhs) const
+        bool operator!=(const Tile& rhs) const
         {
             return !(rhs == *this);
         }
 
-        inline bool operator<(const Tile& rhs) const
+        bool operator<(const Tile& rhs) const
         {
            return depth < rhs.depth;
         }
 
-        inline bool operator>(const Tile& rhs) const
+        bool operator>(const Tile& rhs) const
         {
             return rhs < *this;
         }
 
-        inline bool operator<=(const Tile& rhs) const
+        bool operator<=(const Tile& rhs) const
         {
             return !(rhs < *this);
         }
 
-        inline bool operator>=(const Tile& rhs) const
+        bool operator>=(const Tile& rhs) const
         {
             return !(*this < rhs);
         }

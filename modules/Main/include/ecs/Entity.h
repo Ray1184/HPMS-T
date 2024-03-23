@@ -2,42 +2,51 @@
 
 #include "ecs/Component.h"
 
-#include <string>
 #include <unordered_map>
+#include <functional>
+#include <string>
+#include <utility>
 
 namespace hpms
 {
+    typedef const std::function<void(ComponentType, Component*)> EntityComponentsVisitor;
 
     class Entity
     {
     private:
         std::unordered_map<ComponentType, Component*> components;
         bool changed{true};
+        std::string uniqueId;
 
     public:
-        inline void AddComponent(Component* component)
+        explicit Entity(std::string unique_id)
+            : uniqueId(std::move(unique_id))
+        {
+        }
+
+        void AddComponent(Component* component)
         {
             changed = true;
             components[component->Type()] = component;
         }
 
-        inline bool HasComponent(ComponentType type)
+        [[nodiscard]] bool HasComponent(const ComponentType type) const
         {
             return components.contains(type);
         }
 
-        inline bool IsChanged() const
+        [[nodiscard]] bool IsChanged() const
         {
             return changed;
         }
 
-        inline void SetChanged(bool changed)
+        void SetChanged(const bool changed)
         {
             Entity::changed = changed;
         }
 
-        template <typename T>
-        inline T* GetComponent(ComponentType type)
+        template<typename T>
+        T* GetComponent(const ComponentType type)
         {
             if (components.contains(type))
             {
@@ -45,6 +54,18 @@ namespace hpms
             }
             return nullptr;
         }
-    };
 
+        void ForeachComponent(const EntityComponentsVisitor& visitor) const
+        {
+            for (const auto& [fst, snd]: components)
+            {
+                visitor(fst, snd);
+            }
+        }
+
+        [[nodiscard]] std::string GetId() const
+        {
+            return "Entity/" + uniqueId;
+        }
+    };
 }
