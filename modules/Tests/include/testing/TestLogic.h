@@ -19,6 +19,7 @@ namespace hpms
     private:
         ResourceSupplierImpl* resSupplier;
         std::vector<Entity*> entities;
+        Entity* viewEntity = nullptr;
 
     public:
         [[noreturn]] virtual void Init() override
@@ -46,6 +47,10 @@ namespace hpms
             compMap->id = Strings::UniqueId();
             FillChunkRandom(compMap, 1);
             mapEntity->AddComponent(compMap);
+
+            viewEntity = SAFE_NEW(hpms::Entity, "view_01");
+            auto* compCam = SAFE_NEW(hpms::Camera);
+            viewEntity->AddComponent(compCam);
             //auto* chunk1 = SAFE_NEW(hpms::TilesPool, 1, tilemapTex);
             //auto* chunk2 = SAFE_NEW(hpms::TilesPool);
             //auto* chunk3 = SAFE_NEW(hpms::TilesPool);
@@ -66,6 +71,7 @@ namespace hpms
 
             entities.push_back(picEntity);
             entities.push_back(mapEntity);
+            entities.push_back(viewEntity);
             //drawables.push_back(chunk1);
             //drawables.push_back(chunk2);
             //drawables.push_back(chunk3);
@@ -86,9 +92,9 @@ namespace hpms
 
             for (int n = 0; n < iter; n++)
             {
-                for (int x = -32; x < 32; x++)
+                for (int x = 0; x < 32; x++)
                 {
-                    for (int y = -32; y < 32; y++)
+                    for (int y = -16; y < 16; y++)
                     {
                         //for (int z = -8; z < 8; z++)
                         {
@@ -110,12 +116,15 @@ namespace hpms
 
         void Update(float tpf) override
         {
+            auto* cam = viewEntity->GetComponent<Camera>(COMPONENT_CAMERA);
+            cam->position.x = cam->position.x + (tpf * 30);
+            viewEntity->SetChanged(true);
         }
 
-        void Render(Renderer* renderer, Window* window, FrameBuffer* framebuffer) override
+        void Render(Renderer* renderer, Window* window) override
         {
             System<RenderSystemParams>* rs = SystemFactory::GetSystem<RenderSystemParams>(SYSTEM_RENDERER);
-            RenderSystemParams params{renderer, window, framebuffer};
+            RenderSystemParams params{renderer, window};
             rs->Update(entities, &params);
             //renderer->Render(window, framebuffer, &drawables);
         }

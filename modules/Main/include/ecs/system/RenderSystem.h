@@ -5,7 +5,6 @@
 #include "engine/renderable/TilesPool.h"
 #include "engine/renderable/PictureQuad.h"
 #include "engine/Renderer.h"
-#include "engine/FrameBuffer.h"
 #include "engine/Window.h"
 
 #include <vector>
@@ -17,7 +16,6 @@ namespace hpms
     {
         Renderer* renderer;
         Window* window;
-        FrameBuffer* frameBuffer;
     };
 
     class RenderSystem : public System<RenderSystemParams>

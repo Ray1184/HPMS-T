@@ -7,7 +7,7 @@ hpms::TilesPool::TilesPool(const unsigned int layer, Texture* texture, const std
     this->id = id;
 }
 
-std::unordered_set<hpms::Tile>* hpms::TilesPool::GetTiles()
+std::vector<hpms::Tile>* hpms::TilesPool::GetTiles()
 {
     return &tiles;
 }
@@ -15,6 +15,6 @@ std::unordered_set<hpms::Tile>* hpms::TilesPool::GetTiles()
 void hpms::TilesPool::AddTile(const Tile& tile)
 {
     SetChanged(true);
-    tiles.insert(tile);
+    tiles.push_back(tile);
 }
 

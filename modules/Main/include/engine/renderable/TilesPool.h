@@ -13,7 +13,7 @@ namespace hpms
     {
     private:
         std::string id;
-        std::unordered_set<Tile> tiles;
+        std::vector<Tile> tiles;
 
     public:
 
@@ -21,7 +21,7 @@ namespace hpms
 
         void AddTile(const Tile& tile);
 
-        std::unordered_set<Tile>* GetTiles();
+        std::vector<Tile>* GetTiles();
 
         [[nodiscard]] RenderType GetType() const override
         {

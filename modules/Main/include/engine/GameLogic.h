@@ -11,7 +11,7 @@ namespace hpms
         virtual void Init() = 0;
         virtual void HandleInput(hpms::InputHandler* inputHandler) = 0;
         virtual void Update(float tpf) = 0;
-        virtual void Render(Renderer* renderer, Window* window, FrameBuffer* framebuffer) = 0;
+        virtual void Render(Renderer* renderer, Window* window) = 0;
         virtual void Cleanup() = 0;
     };
 }

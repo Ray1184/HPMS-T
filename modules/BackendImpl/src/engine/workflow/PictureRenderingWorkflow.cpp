@@ -1,12 +1,12 @@
 #include "engine/workflow/PictureRenderingWorkflow.h"
 #include "engine/workflow/VertexBufferProvider.h"
-#include "engine/FrameBufferImpl.h"
+#include "engine/WindowImpl.h"
 #include "engine/resource/TextureImpl.h"
 #include "engine/renderable/PictureQuad.h"
 
 #include <SFML/Graphics.hpp>
 
-void hpms::PictureRenderingWorkflow::Render(Window* window, FrameBuffer* framebuffer, Drawable* item)
+void hpms::PictureRenderingWorkflow::Render(Window* window, Drawable* item)
 {
     sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::TriangleStrip, 4);
 
@@ -37,8 +37,8 @@ void hpms::PictureRenderingWorkflow::Render(Window* window, FrameBuffer* framebu
 
     }
 
-    auto* sfRt = dynamic_cast<FrameBufferImpl*>(framebuffer)->GetNative();
+    auto* sfWin = dynamic_cast<WindowImpl*>(window)->GetNative();
     const auto* sfTexture = dynamic_cast<TextureImpl*>(item->GetTexture())->GetNative();
 
-    sfRt->draw(*vertexBuffer, sfTexture);
+    sfWin->draw(*vertexBuffer, sfTexture);
 }

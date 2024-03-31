@@ -7,9 +7,9 @@ namespace hpms
 {
     struct Camera : public hpms::Component
     {
-        Transform2D position;
+        Transform2D position{0, 0};
 
-        ComponentType Type() const override
+        [[nodiscard]] ComponentType Type() const override
         {
             return COMPONENT_CAMERA;
         }

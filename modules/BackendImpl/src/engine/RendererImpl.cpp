@@ -1,34 +1,29 @@
 #include "engine/RendererImpl.h"
 #include "engine/RenderingWorkflowFactory.h"
 #include "engine/WindowImpl.h"
-#include "engine/FrameBufferImpl.h"
 
 #include <algorithm>
 
-void hpms::RendererImpl::Render(Window* window, FrameBuffer* framebuffer,
-                                std::vector<Drawable*>* drawables)
+void hpms::RendererImpl::Render(Window* window, Transform2D& view, std::vector<Drawable*>* drawables)
 {
     auto* sfWindow = dynamic_cast<WindowImpl*>(window)->GetNative();
-    auto* sfRt = dynamic_cast<FrameBufferImpl*>(framebuffer)->GetNative();
-
-    sfRt->clear(sf::Color::Black);
-    auto sortingByLayerPredicate = [](Drawable* a, Drawable* b)
+    sf::View sfView = sfWindow->getView();
+    const auto oldX = sfView.getSize().x / 2;
+    const auto oldY = sfView.getSize().y / 2;
+    sfView.setCenter(oldX + view.x, oldY + view.y);
+    sfWindow->setView(sfView);
+    sfWindow->clear(sf::Color::Black);
+    auto sortingByLayerPredicate = [](const Drawable* a, const Drawable* b)
     {
         return a->GetLayer() < b->GetLayer();
     };
-    std::sort(drawables->begin(), drawables->end(), sortingByLayerPredicate);
+    std::ranges::sort(*drawables, sortingByLayerPredicate);
 
     for (auto* item: *drawables)
     {
         auto* workflow = RenderingWorkflowFactory::GetRenderingWorkflow(item->GetType());
-        workflow->Render(window, framebuffer, item);
+        workflow->Render(window, item);
     }
-    sfRt->display();
-    sfWindow->clear();
-    sf::Sprite texture(sfRt->getTexture());
-    texture.scale(window->GetSettings().pixelationRatio, window->GetSettings().pixelationRatio);
-    sfWindow->draw(texture);
+
     sfWindow->display();
-
 }
-

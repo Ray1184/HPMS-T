@@ -34,17 +34,15 @@ void hpms::GameRunnerImpl::Run()
         }
 #endif
         logic->Update(tpf);
-        logic->Render(renderer, window, framebuffer);
+        logic->Render(renderer, window);
     }
     logic->Cleanup();
 }
 
 hpms::GameRunnerImpl::GameRunnerImpl(Window* window,
-                                     FrameBuffer* framebuffer,
                                      GameLogic* logic,
                                      InputHandler* inputHandler,
                                      Renderer* renderer) : window(window),
-                                                                 framebuffer(framebuffer),
                                                                  logic(logic),
                                                                  inputHandler(inputHandler),
                                                                  renderer(renderer)

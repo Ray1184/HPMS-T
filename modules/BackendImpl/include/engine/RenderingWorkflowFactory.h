@@ -9,15 +9,15 @@ namespace hpms
     class RenderingWorkflowFactory
     {
     public:
-        inline static hpms::RenderingWorkflow* GetRenderingWorkflow(hpms::RenderType type)
+        static RenderingWorkflow* GetRenderingWorkflow(RenderType type)
         {
-            static hpms::PictureRenderingWorkflow prw;
-            static hpms::TilesPoolRenderingWorkflow trw;
+            static PictureRenderingWorkflow prw;
+            static TilesPoolRenderingWorkflow trw;
             switch (type)
             {
-            case RenderType::DRAWABLE_PICTURE:
+            case DRAWABLE_PICTURE:
                 return &prw;
-            case RenderType::DRAWABLE_TILES_POOL:
+            case DRAWABLE_TILES_POOL:
                 return &trw;
             default:
                 LOG_ERROR("Rendering workflow not implemented");

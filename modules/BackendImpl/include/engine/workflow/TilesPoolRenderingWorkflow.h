@@ -5,10 +5,10 @@
 
 namespace hpms
 {
-    class TilesPoolRenderingWorkflow : public hpms::RenderingWorkflow
+    class TilesPoolRenderingWorkflow : public RenderingWorkflow
     {
     public:
-        virtual void Render(Window* window, FrameBuffer* framebuffer, Drawable* item) override;
+        virtual void Render(Window* window, Drawable* item) override;
 
     };
 }

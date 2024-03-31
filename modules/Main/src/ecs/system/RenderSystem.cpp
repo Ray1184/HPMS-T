@@ -1,4 +1,7 @@
 #include "ecs/system/RenderSystem.h"
+
+#include <ranges>
+
 #include "engine/renderable/PictureQuad.h"
 #include "engine/renderable/TilesPool.h"
 #include "base/ResourcesHandler.h"
@@ -14,16 +17,21 @@ void hpms::RenderSystem::Update(std::vector<Entity*>& entities, RenderSystemPara
 {
     auto* renderer = args->renderer;
     auto* window = args->window;
-    auto* framebuffer = args->frameBuffer;
 
     std::vector<Drawable*> drawables;
     std::unordered_map<std::string, Movable*> transforms;
     std::vector<std::pair<std::string, Picture*> > pictures;
     std::vector<std::pair<std::string, Sprite*> > sprites;
+    const Camera* cam = nullptr;
     for (auto* entity: entities)
     {
-        if (entity->IsChanged())
+        // TODO: force the update of entities for each frame, in order to test performances
+        //if (entity->IsChanged())
         {
+            if (entity->HasComponent(COMPONENT_CAMERA))
+            {
+                cam = entity->GetComponent<Camera>(COMPONENT_CAMERA);
+            }
             if (entity->HasComponent(COMPONENT_MOVABLE))
             {
                 auto* mov = entity->GetComponent<Movable>(COMPONENT_MOVABLE);
@@ -45,25 +53,31 @@ void hpms::RenderSystem::Update(std::vector<Entity*>& entities, RenderSystemPara
         entity->SetChanged(false);
     }
     UpdateDrawables(transforms, pictures, sprites);
-    for (auto& [fst, snd]: poolsCache)
+    for (const auto& snd: poolsCache | std::views::values)
     {
         drawables.push_back(snd);
     }
-    for (auto& [fst, snd]: picturesCache)
+    for (const auto& snd: picturesCache | std::views::values)
     {
         drawables.push_back(snd);
     }
     layersToUpdate.clear();
-    renderer->Render(window, framebuffer, &drawables);
+    Transform2D view{0, 0};
+    if (cam != nullptr)
+    {
+        view.x = cam->position.x;
+        view.y = cam->position.y;
+    }
+    renderer->Render(window, view, &drawables);
 }
 
 void hpms::RenderSystem::Cleanup(std::vector<Entity*>& entities, RenderSystemParams* args)
 {
-    for (auto& [fst, snd]: poolsCache)
+    for (auto& snd: poolsCache | std::views::values)
     {
         SAFE_DELETE(TilesPool, snd);
     }
-    for (auto& [fst, snd]: picturesCache)
+    for (auto& snd: picturesCache | std::views::values)
     {
         SAFE_DELETE(PictureQuad, snd);
     }
@@ -99,6 +113,10 @@ void hpms::RenderSystem::UpdateDrawables(const std::unordered_map<std::string, M
                 const auto* mov = transforms.at(fst2);
                 t2d = mov->position;
             }
+            if (picturesCache.contains(fst))
+            {
+                SAFE_DELETE(PictureQuad, picturesCache[fst]);
+            }
             auto* tex = ResourcesHandler::Provide<Texture>(snd2->pakId, snd2->textureName);
             picturesCache[fst] = SAFE_NEW(PictureQuad, fst, tex, t2d, "/" + snd2->id);
             picturesCache[fst]->SetChanged(true);
@@ -109,6 +127,10 @@ void hpms::RenderSystem::UpdateDrawables(const std::unordered_map<std::string, M
     {
         auto spritesOnSameLayer = snd;
         auto* mergedTexture = MergeTextures(spritesOnSameLayer);
+        if (poolsCache.contains(fst))
+        {
+            SAFE_DELETE(TilesPool, poolsCache[fst]);
+        }
         poolsCache[fst] = SAFE_NEW(TilesPool, fst, mergedTexture, CreateMergedId(spritesOnSameLayer));
         poolsCache[fst]->SetChanged(true);
         for (const auto& [fst2, snd2]: spritesOnSameLayer)
@@ -133,7 +155,7 @@ void hpms::RenderSystem::UpdateDrawables(const std::unordered_map<std::string, M
 std::string hpms::RenderSystem::CreateMergedId(const std::vector<std::pair<std::string, Sprite*> >& sprites)
 {
     std::stringstream ss;
-    for (const auto& [fst, snd]: sprites)
+    for (const auto& snd: sprites | std::views::values)
     {
         ss << "/" << snd->id;
     }

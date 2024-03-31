@@ -7,6 +7,9 @@ hpms::WindowImpl::WindowImpl(const WindowSettings& settings) : settings(settings
     sfmlWindow = SAFE_NEW(sf::RenderWindow, sf::VideoMode(settings.width * settings.pixelationRatio, settings.height * settings.pixelationRatio), settings.appName, style);
     sfmlWindow->setVerticalSyncEnabled(settings.vSync);
     sfmlWindow->setFramerateLimit(settings.framerateLimit);
+    sf::View sfView = sfmlWindow->getView();
+    sfView.setSize(static_cast<float>(settings.width), static_cast<float>(settings.height));
+    sfmlWindow->setView(sfView);
 }
 
 

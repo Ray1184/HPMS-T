@@ -10,6 +10,6 @@ namespace hpms
     {
     private:
     public:
-        virtual void Render(hpms::Window* window, hpms::FrameBuffer* framebuffer, std::vector<hpms::Drawable*>* drawables) override;
+        virtual void Render(Window* window, Transform2D& view, std::vector<Drawable*>* drawables) override;
     };
 }

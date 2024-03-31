@@ -8,12 +8,11 @@ namespace hpms
     {
     private:
         hpms::Window* window;
-        hpms::FrameBuffer* framebuffer;
         hpms::GameLogic* logic;
         hpms::InputHandler* inputHandler;
         hpms::Renderer* renderer;
     public:
-        GameRunnerImpl(Window* window, FrameBuffer* framebuffer, GameLogic* logic, InputHandler* inputHandler, Renderer* renderer);
+        GameRunnerImpl(Window* window, GameLogic* logic, InputHandler* inputHandler, Renderer* renderer);
 
         virtual void Run() override;
     };

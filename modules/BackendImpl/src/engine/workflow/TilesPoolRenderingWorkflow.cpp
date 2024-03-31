@@ -1,23 +1,22 @@
 #include "engine/workflow/TilesPoolRenderingWorkflow.h"
 #include "engine/workflow/TilesPoolRenderingOptimizer.h"
 #include "engine/workflow/VertexBufferProvider.h"
-#include "engine/FrameBufferImpl.h"
+#include "engine/WindowImpl.h"
 #include "engine/resource/TextureImpl.h"
 #include "engine/renderable/TilesPool.h"
 
 #include <SFML/Graphics.hpp>
 
-void hpms::TilesPoolRenderingWorkflow::Render(Window* window, FrameBuffer* framebuffer, Drawable* item)
+void hpms::TilesPoolRenderingWorkflow::Render(Window* window, Drawable* item)
 {
     sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::Triangles, 0);
 
     if (item->IsChanged())
     {
-
         auto* tiles = dynamic_cast<TilesPool*>(item);
 
-        std::vector<Tile> optimizedTiles;
-        TilesPoolRenderingOptimizer::Optimize(window, tiles->GetTiles(), &optimizedTiles);
+        auto& optimizedTiles = *tiles->GetTiles();
+
         std::ranges::sort(optimizedTiles);
 
         std::vector<sf::Vertex> vertexArray(optimizedTiles.size() * 6);
@@ -54,13 +53,13 @@ void hpms::TilesPoolRenderingWorkflow::Render(Window* window, FrameBuffer* frame
 
         LOG_TRACE("VertexBuffer up to date for item {}", item->GetId());
     }
-    auto* sfRt = dynamic_cast<FrameBufferImpl*>(framebuffer)->GetNative();
+
+    auto* sfWin = dynamic_cast<WindowImpl*>(window)->GetNative();
     const auto* sfTexture = dynamic_cast<TextureImpl*>(item->GetTexture())->GetNative();
 
     sf::RenderStates rs;
     rs.texture = sfTexture;
     rs.blendMode = sf::BlendAlpha;
 
-    sfRt->draw(*vertexBuffer, rs);
+    sfWin->draw(*vertexBuffer, rs);
 }
-
