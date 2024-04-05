@@ -3,21 +3,19 @@
 #include "engine/Drawable.h"
 #include "engine/Tile.h"
 
-#include <unordered_map>
-#include <unordered_set>
 #include <bitset>
 
 namespace hpms
 {
+
     class TilesPool : public Drawable
     {
     private:
-        std::string id;
         std::vector<Tile> tiles;
 
     public:
 
-        TilesPool(unsigned int layer, Texture* texture, const std::string& id);
+        TilesPool(unsigned int layer, Texture* texture, const std::string& id, const int flags = STRATEGY_STATIC);
 
         void AddTile(const Tile& tile);
 
@@ -26,11 +24,6 @@ namespace hpms
         [[nodiscard]] RenderType GetType() const override
         {
             return DRAWABLE_TILES_POOL;
-        }
-
-        [[nodiscard]] const std::string GetId() const override
-        {
-            return "TilesPool" + id;
         }
     };
 }

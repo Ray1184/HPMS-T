@@ -11,19 +11,17 @@ void hpms::TilesPoolRenderingWorkflow::Render(Window* window, Drawable* item)
 {
     sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::Triangles, 0);
 
-    if (item->IsChanged())
+    if (item->IsUpdateVertices() || item->IsForceAll())
     {
-        auto* tiles = dynamic_cast<TilesPool*>(item);
+        auto* pool = dynamic_cast<TilesPool*>(item);
 
-        auto& optimizedTiles = *tiles->GetTiles();
+        auto& tiles = *pool->GetTiles();
 
-        std::ranges::sort(optimizedTiles);
-
-        std::vector<sf::Vertex> vertexArray(optimizedTiles.size() * 6);
-        vertexBuffer->create(optimizedTiles.size() * 6);
+        std::vector<sf::Vertex> vertexArray(tiles.size() * 6);
+        vertexBuffer->create(tiles.size() * 6);
         unsigned int index = 0;
 
-        for (auto& [position, texCoords, depth]: optimizedTiles)
+        for (auto& [position, texCoords]: tiles)
         {
             constexpr float s = TILE_SIZE;
             const float px = position.x * s;
@@ -49,8 +47,6 @@ void hpms::TilesPoolRenderingWorkflow::Render(Window* window, Drawable* item)
         }
 
         vertexBuffer->update(vertexArray.data());
-        item->SetChanged(false);
-
         LOG_TRACE("VertexBuffer up to date for item {}", item->GetId());
     }
 

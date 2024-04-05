@@ -23,6 +23,7 @@ void hpms::RendererImpl::Render(Window* window, Transform2D& view, std::vector<D
     {
         auto* workflow = RenderingWorkflowFactory::GetRenderingWorkflow(item->GetType());
         workflow->Render(window, item);
+        item->SetForceAll(false);
     }
 
     sfWindow->display();

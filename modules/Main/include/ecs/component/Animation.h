@@ -1,22 +1,20 @@
 #pragma once
 
-#include "base/Defs.h"
 #include "engine/Tile.h"
 #include "ecs/Component.h"
 
 #include <vector>
-#include <unordered_map>
 
 namespace hpms
 {
 
-    struct Animation : public hpms::Component
+    struct Animation : public Component
     {
         std::string name;
         unsigned int frameCount{1};
         unsigned int currentFrame{0};
         float tpf{1};
-        std::vector<hpms::Tile> tiles;
+        std::vector<Tile> tiles;
 
         ComponentType Type() const override
         {

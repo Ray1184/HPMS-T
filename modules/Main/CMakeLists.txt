@@ -19,6 +19,7 @@ set(SOURCES
         src/base/Files.cpp
         src/base/Strings.cpp
         src/engine/renderable/PictureQuad.cpp
+        src/engine/renderable/SimpleSprite.cpp
         src/engine/renderable/TilesPool.cpp
         src/base/Logs.cpp
         src/ecs/system/RenderSystem.cpp)

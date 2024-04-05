@@ -10,7 +10,7 @@ void hpms::PictureRenderingWorkflow::Render(Window* window, Drawable* item)
 {
     sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::TriangleStrip, 4);
 
-    if (item->IsChanged())
+    if (item->IsUpdateVertices() || item->IsForceAll())
     {
         sf::Vertex vertexArray[4];
         auto* pic = dynamic_cast<PictureQuad*>(item);
@@ -30,8 +30,6 @@ void hpms::PictureRenderingWorkflow::Render(Window* window, Drawable* item)
         vertexArray[3].texCoords = sf::Vector2f(image->width, image->height);
 
         vertexBuffer->update(vertexArray);
-
-        item->SetChanged(false);
 
         LOG_TRACE("VertexBuffer up to date for item {}", item->GetId());
 

@@ -5,6 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <unordered_set>
 
 namespace hpms
 {

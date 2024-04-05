@@ -1,6 +1,5 @@
 #pragma once
 
-#include "base/Defs.h"
 #include "ecs/Component.h"
 
 #include <string>

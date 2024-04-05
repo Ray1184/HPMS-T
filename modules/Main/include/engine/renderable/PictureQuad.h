@@ -11,25 +11,20 @@ namespace hpms
         float height;
     };
 
-    class PictureQuad : public hpms::Drawable
+    class PictureQuad : public Drawable
     {
     private:
-        std::string id;
-        hpms::Image image;
+        Image image;
 
     public:
-        PictureQuad(unsigned int layer, Texture* texture, Transform2D position, const std::string& id);
+        PictureQuad(unsigned int layer, Texture* texture, Transform2D position, const std::string& id, int flags = STRATEGY_STATIC);
 
         Image* GetImage();
 
         [[nodiscard]] RenderType GetType() const override
         {
-            return RenderType::DRAWABLE_PICTURE;
+            return DRAWABLE_PICTURE;
         }
 
-        [[nodiscard]] const std::string GetId() const override
-        {
-            return "PictureQuad" + id;
-        }
     };
 }

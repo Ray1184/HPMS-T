@@ -10,40 +10,58 @@ namespace hpms
     enum RenderType
     {
         DRAWABLE_PICTURE,
+        DRAWABLE_SIMPLE_SPRITE,
         DRAWABLE_TILES_POOL
+    };
+
+    enum RenderStrategy
+    {
+        STRATEGY_STATIC = 1,
+        STRATEGY_UPDATE_VERTICES = 2
     };
 
     class Drawable
     {
     protected:
+        std::string id;
         unsigned int layer;
-        hpms::Texture* texture;
-        bool changed{true};
+        Texture* texture;
+        bool updateVertices{false};
+        bool forceAll{true};
+
     public:
-        inline virtual ~Drawable() = default;
+        virtual ~Drawable() = default;
 
         virtual RenderType GetType() const = 0;
 
-        virtual const std::string GetId() const = 0;
-
-        [[nodiscard]] inline unsigned int GetLayer() const
+        [[nodiscard]] unsigned int GetLayer() const
         {
             return layer;
         }
 
-        [[nodiscard]] inline Texture* GetTexture() const
+        [[nodiscard]] Texture* GetTexture() const
         {
             return texture;
         }
 
-        [[nodiscard]] inline bool IsChanged() const
+        [[nodiscard]] bool IsUpdateVertices() const
         {
-            return changed;
+            return updateVertices;
         }
 
-        inline void SetChanged(bool changed)
+        [[nodiscard]] bool IsForceAll() const
         {
-            Drawable::changed = changed;
+            return forceAll;
+        }
+
+        void SetForceAll(const bool forceAll)
+        {
+            Drawable::forceAll = forceAll;
+        }
+
+        [[nodiscard]] std::string GetId() const
+        {
+            return id;
         }
     };
 }

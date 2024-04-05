@@ -7,15 +7,13 @@
 
 namespace hpms
 {
-    struct Sprite : public Graphics
+    struct TileMap : public Graphics
     {
         std::vector<Tile> tiles;
-        int width;
-        int height;
 
         ComponentType Type() const override
         {
-            return COMPONENT_SPRITE;
+            return COMPONENT_TILEMAP;
         }
     };
 }

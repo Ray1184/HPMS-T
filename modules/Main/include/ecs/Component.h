@@ -4,6 +4,7 @@ namespace hpms
 {
 
     enum ComponentType {
+        COMPONENT_TILEMAP,
         COMPONENT_SPRITE,
         COMPONENT_PICTURE,
         COMPONENT_MOVABLE,

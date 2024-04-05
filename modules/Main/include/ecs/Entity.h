@@ -15,7 +15,6 @@ namespace hpms
     {
     private:
         std::unordered_map<ComponentType, Component*> components;
-        bool changed{true};
         std::string uniqueId;
 
     public:
@@ -26,23 +25,12 @@ namespace hpms
 
         void AddComponent(Component* component)
         {
-            changed = true;
             components[component->Type()] = component;
         }
 
         [[nodiscard]] bool HasComponent(const ComponentType type) const
         {
             return components.contains(type);
-        }
-
-        [[nodiscard]] bool IsChanged() const
-        {
-            return changed;
-        }
-
-        void SetChanged(const bool changed)
-        {
-            Entity::changed = changed;
         }
 
         template<typename T>

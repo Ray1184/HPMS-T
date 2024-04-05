@@ -20,6 +20,7 @@ namespace hpms
         ResourceSupplierImpl* resSupplier;
         std::vector<Entity*> entities;
         Entity* viewEntity = nullptr;
+        bool renderInit{false};
 
     public:
         [[noreturn]] virtual void Init() override
@@ -40,7 +41,7 @@ namespace hpms
             picEntity->AddComponent(compPic);
 
             auto* mapEntity = SAFE_NEW(hpms::Entity, "map_01");
-            auto* compMap = SAFE_NEW(hpms::Sprite);
+            auto* compMap = SAFE_NEW(hpms::TileMap);
             compMap->textureName = "/textures/tileset_custom_48_48.png";
             compMap->pakId = "pak1.zip";
             compMap->layer = 1;
@@ -82,7 +83,7 @@ namespace hpms
             //drawables.push_back(chunk8);
         }
 
-        void FillChunkRandom(Sprite* sprite, int iter) const
+        void FillChunkRandom(TileMap* tmap, int iter) const
         {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -92,17 +93,17 @@ namespace hpms
 
             for (int n = 0; n < iter; n++)
             {
-                for (int x = 0; x < 32; x++)
+                for (int x = 0; x < 16 * 1000; x++)
                 {
-                    for (int y = -16; y < 16; y++)
+                    for (int y = 0; y < 16 * 100; y++)
                     {
                         //for (int z = -8; z < 8; z++)
                         {
                             int randomX = 1;//distribution(gen);
                             int randomY = 1;//distribution(gen);
                             int randomZ = 1;//distribution(gen);
-                            Tile t{(float) x * randomX, (float) y * randomY, 0, 0, 0};
-                            sprite->tiles.push_back(t);
+                            Tile t{(float) x * randomX, (float) y * randomY, 0, 0};
+                            tmap->tiles.push_back(t);
                         }
                     }
                 }
@@ -117,14 +118,19 @@ namespace hpms
         void Update(float tpf) override
         {
             auto* cam = viewEntity->GetComponent<Camera>(COMPONENT_CAMERA);
-            cam->position.x = cam->position.x + (tpf * 30);
-            viewEntity->SetChanged(true);
+            cam->position.x = cam->position.x + (tpf * 10);
+            //cam->position.y = cam->position.y + (tpf * 10);
         }
 
         void Render(Renderer* renderer, Window* window) override
         {
             System<RenderSystemParams>* rs = SystemFactory::GetSystem<RenderSystemParams>(SYSTEM_RENDERER);
             RenderSystemParams params{renderer, window};
+            if (!renderInit)
+            {
+                rs->Init(entities, &params);
+                renderInit = true;
+            }
             rs->Update(entities, &params);
             //renderer->Render(window, framebuffer, &drawables);
         }
