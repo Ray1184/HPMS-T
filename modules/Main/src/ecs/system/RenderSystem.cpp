@@ -92,7 +92,7 @@ void hpms::RenderSystem::InitChunks(const std::vector<Entity*>& entities, Render
             TilesPool tilesPool;
             tilesPool.layer = fst;
             tilesPool.texture = texture;
-            tilesPool.id = "L_" + std::to_string(fst) + "_" + tileMap->id + "_C_" + std::to_string(fst2.x) + "_" + std::to_string(fst2.y);
+            tilesPool.id = "L" + std::to_string(fst) + "_C" + tileMap->id + "[" + std::to_string(fst2.x) + "," + std::to_string(fst2.y) + "]";
             tilesPool.tiles = snd2;
             allChunks[fst2] = &pooledChunkData[fst].emplace_back(std::move(tilesPool));
         }
