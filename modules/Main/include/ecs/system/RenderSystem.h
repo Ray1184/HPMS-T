@@ -22,6 +22,7 @@ namespace hpms
     class RenderSystem : public System<RenderSystemParams>
     {
     private:
+        std::unordered_map<unsigned int, std::vector<TilesPool>> pooledChunkData;
         std::unordered_map<Transform2D, TilesPool*> allChunks;
         std::vector<TilesPool*> inViewChunks;
         std::unordered_map<std::string, SimpleSprite*> allSprites;

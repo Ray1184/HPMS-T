@@ -45,11 +45,15 @@ void hpms::RenderSystem::Cleanup(std::vector<Entity*>& entities, RenderSystemPar
     {
         SAFE_DELETE(PictureQuad, val);
     }
-
-    for (auto& val: allChunks | std::views::values)
+    for (auto & [fst, snd] : pooledChunkData)
     {
-        SAFE_DELETE(TilesPool, val);
+        snd.clear();
     }
+
+    allSprites.clear();
+    allPictures.clear();
+    pooledChunkData.clear();
+
 }
 
 void hpms::RenderSystem::InitView(const std::vector<Entity*>& entities, RenderSystemParams* args)
@@ -77,15 +81,23 @@ void hpms::RenderSystem::InitChunks(const std::vector<Entity*>& entities, Render
 
     for (const auto& [fst, snd]: tileMapsByLayer)
     {
+        START_TIMER();
         const auto* tileMap = snd.second;
         auto* texture = ResourcesHandler::Provide<Texture>(tileMap->pakId, tileMap->textureName);
         auto& chunks = tileMap->chunks;
+        pooledChunkData[fst].reserve(chunks.size());
 
-        unsigned long counter = 0;
-        for (const auto& [fst2, snd2] : chunks)
+        for (const auto& [fst2, snd2]: chunks)
         {
-            allChunks[fst2] = SAFE_NEW(TilesPool, fst, texture, tileMap->id + "_C_" + std::to_string(counter++), snd2);
+            TilesPool tilesPool;
+            tilesPool.layer = fst;
+            tilesPool.texture = texture;
+            tilesPool.id = "L_" + std::to_string(fst) + "_" + tileMap->id + "_C_" + std::to_string(fst2.x) + "_" + std::to_string(fst2.y);
+            tilesPool.tiles = snd2;
+            allChunks[fst2] = &pooledChunkData[fst].emplace_back(std::move(tilesPool));
         }
+        END_TIMER();
+        LOG_DEBUG("{} Chunks allocation done in {} seconds for layer {}", allChunks.size(), elapsed.count(), fst);
     }
 }
 
@@ -174,7 +186,7 @@ void hpms::RenderSystem::UpdateDrawables(const std::vector<Entity*>& entities, R
                 allPictures[pic->id] = SAFE_NEW(PictureQuad, pic->layer, tex, pos, pic->id);
             }
 
-            const AABox picBox{pos.x, pos.y, allPictures[pic->id]->GetImage()->width, allPictures[pic->id]->GetImage()->height};
+            const AABox picBox{pos.x, pos.y, allPictures[pic->id]->image.width, allPictures[pic->id]->image.height};
             if (pic->visible && Math::Intersect(picBox, viewRect))
             {
                 inViewPictures.push_back(allPictures[pic->id]);

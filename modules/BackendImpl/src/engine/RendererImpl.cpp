@@ -15,7 +15,7 @@ void hpms::RendererImpl::Render(Window* window, Transform2D& view, std::vector<D
     sfWindow->clear(sf::Color::Black);
     auto sortingByLayerPredicate = [](const Drawable* a, const Drawable* b)
     {
-        return a->GetLayer() < b->GetLayer();
+        return a->layer < b->layer;
     };
     std::ranges::sort(*drawables, sortingByLayerPredicate);
 
@@ -23,7 +23,7 @@ void hpms::RendererImpl::Render(Window* window, Transform2D& view, std::vector<D
     {
         auto* workflow = RenderingWorkflowFactory::GetRenderingWorkflow(item->GetType());
         workflow->Render(window, item);
-        item->SetForceAll(false);
+        item->forceAll = false;
     }
 
     sfWindow->display();

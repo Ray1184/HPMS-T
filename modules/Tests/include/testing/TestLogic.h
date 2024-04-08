@@ -11,7 +11,7 @@
 
 #include <random>
 
-#define MAP_SIZE 16
+#define MAP_SIZE 8
 
 namespace hpms
 {

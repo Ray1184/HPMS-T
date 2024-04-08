@@ -10,9 +10,3 @@ hpms::PictureQuad::PictureQuad(const unsigned int layer, Texture* texture, const
     this->id = id;
     updateVertices = flags & STRATEGY_UPDATE_VERTICES;
 }
-
-hpms::Image* hpms::PictureQuad::GetImage()
-{
-    return &image;
-}
-

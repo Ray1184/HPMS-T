@@ -11,8 +11,3 @@ hpms::SimpleSprite::SimpleSprite(const unsigned int layer, Texture* texture, con
     this->height = height;
     updateVertices = flags & STRATEGY_UPDATE_VERTICES;
 }
-
-std::vector<hpms::Tile>* hpms::SimpleSprite::GetTiles()
-{
-    return &tiles;
-}

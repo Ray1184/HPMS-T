@@ -7,17 +7,13 @@
 
 namespace hpms
 {
-
-    class TilesPool : public Drawable
+    struct TilesPool : public Drawable
     {
-    private:
         std::vector<Tile> tiles;
 
-    public:
+        TilesPool();
 
         TilesPool(unsigned int layer, Texture* texture, const std::string& id, const std::vector<Tile>& tiles, const int flags = STRATEGY_STATIC);
-
-        std::vector<Tile>* GetTiles();
 
         [[nodiscard]] RenderType GetType() const override
         {

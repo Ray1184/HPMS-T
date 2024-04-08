@@ -9,13 +9,13 @@
 
 void hpms::TilesPoolRenderingWorkflow::Render(Window* window, Drawable* item)
 {
-    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::Triangles);
+    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->id, sf::PrimitiveType::Triangles);
 
-    if (item->IsUpdateVertices() || item->IsForceAll())
+    if (item->updateVertices || item->forceAll)
     {
         auto* pool = dynamic_cast<TilesPool*>(item);
 
-        auto& tiles = *pool->GetTiles();
+        auto& tiles = pool->tiles;
 
         std::vector<sf::Vertex> vertexArray(tiles.size() * 6);
         vertexBuffer->create(tiles.size() * 6);
@@ -47,11 +47,11 @@ void hpms::TilesPoolRenderingWorkflow::Render(Window* window, Drawable* item)
         }
 
         vertexBuffer->update(vertexArray.data());
-        LOG_TRACE("VertexBuffer up to date for item {}", item->GetId());
+        LOG_TRACE("VertexBuffer up to date for item {}", item->id);
     }
 
     auto* sfWin = dynamic_cast<WindowImpl*>(window)->GetNative();
-    const auto* sfTexture = dynamic_cast<TextureImpl*>(item->GetTexture())->GetNative();
+    const auto* sfTexture = dynamic_cast<TextureImpl*>(item->texture)->GetNative();
 
     sf::RenderStates rs;
     rs.texture = sfTexture;

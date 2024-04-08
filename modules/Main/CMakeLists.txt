@@ -13,25 +13,20 @@ FetchContent_Declare(PHYSFS
         GIT_TAG release-3.2.0)
 FetchContent_MakeAvailable(PHYSFS)
 
-FetchContent_Declare(QTREE
-        GIT_REPOSITORY https://github.com/tuxalin/THST
-        GIT_TAG master)
-FetchContent_MakeAvailable(QTREE)
-
 set(SOURCES
         src/base/ResourcesHandler.cpp
         src/base/FileSystem.cpp
         src/base/PacksHandler.cpp
         src/base/Files.cpp
         src/base/Strings.cpp
+        src/base/Logs.cpp
         src/engine/renderable/PictureQuad.cpp
         src/engine/renderable/SimpleSprite.cpp
         src/engine/renderable/TilesPool.cpp
-        src/base/Logs.cpp
         src/ecs/system/RenderSystem.cpp)
 
 add_library(Main ${SOURCES})
 target_include_directories(Main PUBLIC include)
-target_link_libraries(Main PUBLIC physfs-static PUBLIC THST)
+target_link_libraries(Main PUBLIC physfs-static)
 target_compile_features(Main PRIVATE cxx_std_20)
 message(STATUS "Module Main built successfully")

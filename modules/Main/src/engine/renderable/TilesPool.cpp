@@ -1,5 +1,8 @@
 #include "engine/renderable/TilesPool.h"
 
+hpms::TilesPool::TilesPool()
+{}
+
 hpms::TilesPool::TilesPool(const unsigned int layer, Texture* texture, const std::string& id, const std::vector<Tile>& tiles, const int flags)
 {
     this->layer = layer;
@@ -7,9 +10,4 @@ hpms::TilesPool::TilesPool(const unsigned int layer, Texture* texture, const std
     this->id = id;
     this->tiles = tiles;
     updateVertices = flags & STRATEGY_UPDATE_VERTICES;
-}
-
-std::vector<hpms::Tile>* hpms::TilesPool::GetTiles()
-{
-    return &tiles;
 }
