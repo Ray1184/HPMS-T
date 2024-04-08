@@ -9,7 +9,7 @@
 
 void hpms::TilesPoolRenderingWorkflow::Render(Window* window, Drawable* item)
 {
-    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::Triangles, 0);
+    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::Triangles);
 
     if (item->IsUpdateVertices() || item->IsForceAll())
     {

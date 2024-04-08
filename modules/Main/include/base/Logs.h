@@ -1,9 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <sstream>
-#include <array>
 #include <string>
+#include <chrono>
 
 // NOTE: trace is used in logic and rendering loops, DISABLE_TRACE is encouraged in final releases in order to avoid string format in each call
 #ifndef DISABLE_TRACE
@@ -15,6 +14,9 @@
 #define LOG_INFO(msg, ...) hpms::Logs::Log(hpms::LogLevel::INFO, __FUNCTION__, std::format(msg, __VA_ARGS__))
 #define LOG_WARN(msg, ...) hpms::Logs::Log(hpms::LogLevel::WARN, __FUNCTION__, std::format(msg, __VA_ARGS__))
 #define LOG_ERROR(msg, ...) hpms::Logs::Log(hpms::LogLevel::ERROR, __FUNCTION__, std::format(msg, __VA_ARGS__))
+
+#define START_TIMER() auto timerStart = std::chrono::high_resolution_clock::now()
+#define END_TIMER() auto timerEnd = std::chrono::high_resolution_clock::now(); auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(timerEnd-timerStart)
 
 namespace hpms
 {
@@ -38,6 +40,5 @@ namespace hpms
         static LogLevel logLevel;
 
         static void Log(LogLevel level, const std::string& caller, const std::string& message);
-
     };
 }

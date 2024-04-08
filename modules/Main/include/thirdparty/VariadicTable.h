@@ -40,7 +40,7 @@ enum class VariadicTableColumnFormat
  * And finally print it:
  * vt.print();
  */
-template <class... Ts>
+template<class... Ts>
 class VariadicTable
 {
 public:
@@ -56,10 +56,10 @@ public:
     VariadicTable(std::vector<std::string> headers,
                   unsigned int static_column_size = 0,
                   unsigned int cell_padding = 1)
-            : _headers(headers),
-              _num_columns(std::tuple_size<DataTuple>::value),
-              _static_column_size(static_column_size),
-              _cell_padding(cell_padding)
+        : _headers(headers),
+          _num_columns(std::tuple_size<DataTuple>::value),
+          _static_column_size(static_column_size),
+          _cell_padding(cell_padding)
     {
         assert(headers.size() == _num_columns);
     }
@@ -83,8 +83,8 @@ public:
     /**
      * Pretty print the table of data
      */
-    template <typename StreamType>
-    void print(StreamType & stream)
+    template<typename StreamType>
+    void print(StreamType& stream)
     {
         size_columns();
 
@@ -93,7 +93,7 @@ public:
         unsigned int total_width = _num_columns + 1;
 
         // Now add in the size of each colum
-        for (auto & col_size : _column_sizes)
+        for (auto& col_size: _column_sizes)
             total_width += col_size + (2 * _cell_padding);
 
         // Print out the top line
@@ -108,7 +108,7 @@ public:
             half -= _headers[i].size() / 2;
 
             stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[i]) << std::left
-                   << std::string(half, ' ') + _headers[i] << std::string(_cell_padding, ' ') << "|";
+                    << std::string(half, ' ') + _headers[i] << std::string(_cell_padding, ' ') << "|";
         }
 
         stream << "\n";
@@ -117,7 +117,7 @@ public:
         stream << std::string(total_width, '-') << "\n";
 
         // Now print the rows of the table
-        for (auto & row : _data)
+        for (auto& row: _data)
         {
             stream << "|";
             print_each(row, stream);
@@ -143,7 +143,7 @@ public:
      *
      * @column_format The format for each column: MUST be the same length as the number of columns.
      */
-    void setColumnFormat(const std::vector<VariadicTableColumnFormat> & column_format)
+    void setColumnFormat(const std::vector<VariadicTableColumnFormat>& column_format)
     {
         assert(column_format.size() == std::tuple_size<DataTuple>::value);
 
@@ -157,7 +157,7 @@ public:
      *
      * @column_format The precision for each column: MUST be the same length as the number of columns.
      */
-    void setColumnPrecision(const std::vector<int> & precision)
+    void setColumnPrecision(const std::vector<int>& precision)
     {
         assert(precision.size() == std::tuple_size<DataTuple>::value);
         _precision = precision;
@@ -170,16 +170,16 @@ protected:
 
     // Attempts to figure out the correct justification for the data
     // If it's a floating point value
-    template <typename T,
-            typename = typename std::enable_if<
-                    std::is_arithmetic<typename std::remove_reference<T>::type>::value>::type>
+    template<typename T,
+        typename = typename std::enable_if<
+            std::is_arithmetic<typename std::remove_reference<T>::type>::value>::type>
     static right_type justify(int /*firstchoice*/)
     {
         return std::right;
     }
 
     // Otherwise
-    template <typename T>
+    template<typename T>
     static left_type justify(long /*secondchoice*/)
     {
         return std::left;
@@ -198,32 +198,32 @@ protected:
     /**
      *  This ends the recursion
      */
-    template <typename TupleType, typename StreamType>
-    void print_each(TupleType &&,
-                    StreamType & /*stream*/,
+    template<typename TupleType, typename StreamType>
+    void print_each(TupleType&&,
+                    StreamType& /*stream*/,
                     std::integral_constant<
-                            size_t,
-                            std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
+                        size_t,
+                        std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
     {
     }
 
     /**
      * This gets called on each item
      */
-    template <std::size_t I,
-            typename TupleType,
-            typename StreamType,
-            typename = typename std::enable_if<
-                    I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
-    void print_each(TupleType && t, StreamType & stream, std::integral_constant<size_t, I>)
+    template<std::size_t I,
+        typename TupleType,
+        typename StreamType,
+        typename = typename std::enable_if<
+            I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
+    void print_each(TupleType&& t, StreamType& stream, std::integral_constant<size_t, I>)
     {
-        auto & val = std::get<I>(t);
+        auto& val = std::get<I>(t);
 
         // Set the precision
         if (!_precision.empty())
         {
             assert(_precision.size() ==
-                   std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
+                std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
 
             stream << std::setprecision(_precision[I]);
         }
@@ -232,7 +232,7 @@ protected:
         if (!_column_format.empty())
         {
             assert(_column_format.size() ==
-                   std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
+                std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
 
             if (_column_format[I] == VariadicTableColumnFormat::SCIENTIFIC)
                 stream << std::scientific;
@@ -245,7 +245,7 @@ protected:
         }
 
         stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[I])
-               << justify<decltype(val)>(0) << val << std::string(_cell_padding, ' ') << "|";
+                << justify<decltype(val)>(0) << val << std::string(_cell_padding, ' ') << "|";
 
         // Unset the format
         if (!_column_format.empty())
@@ -261,8 +261,8 @@ protected:
     /**
      * his is what gets called first
      */
-    template <typename TupleType, typename StreamType>
-    void print_each(TupleType && t, StreamType & stream)
+    template<typename TupleType, typename StreamType>
+    void print_each(TupleType&& t, StreamType& stream)
     {
         print_each(std::forward<TupleType>(t), stream, std::integral_constant<size_t, 0>());
     }
@@ -272,8 +272,8 @@ protected:
      *
      * If the datatype has a size() member... let's call it
      */
-    template <class T>
-    size_t sizeOfData(const T & data, decltype(((T *)nullptr)->size()) * /*dummy*/ = nullptr)
+    template<class T>
+    size_t sizeOfData(const T& data, decltype(((T*) nullptr)->size())* /*dummy*/ = nullptr)
     {
         return data.size();
     }
@@ -283,9 +283,9 @@ protected:
      *
      * If the datatype is an integer - let's get it's length
      */
-    template <class T>
-    size_t sizeOfData(const T & data,
-                      typename std::enable_if<std::is_integral<T>::value>::type * /*dummy*/ = nullptr)
+    template<class T>
+    size_t sizeOfData(const T& data,
+                      typename std::enable_if<std::is_integral<T>::value>::type* /*dummy*/ = nullptr)
     {
         if (data == 0)
             return 1;
@@ -306,24 +306,24 @@ protected:
     /**
      * End the recursion
      */
-    template <typename TupleType>
-    void size_each(TupleType &&,
-                   std::vector<unsigned int> & /*sizes*/,
+    template<typename TupleType>
+    void size_each(TupleType&&,
+                   std::vector<unsigned int>& /*sizes*/,
                    std::integral_constant<
-                           size_t,
-                           std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
+                       size_t,
+                       std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
     {
     }
 
     /**
      * Recursively called for each element
      */
-    template <std::size_t I,
-            typename TupleType,
-            typename = typename std::enable_if<
-                    I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
+    template<std::size_t I,
+        typename TupleType,
+        typename = typename std::enable_if<
+            I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
     void
-    size_each(TupleType && t, std::vector<unsigned int> & sizes, std::integral_constant<size_t, I>)
+    size_each(TupleType&& t, std::vector<unsigned int>& sizes, std::integral_constant<size_t, I>)
     {
         sizes[I] = sizeOfData(std::get<I>(t));
 
@@ -339,8 +339,8 @@ protected:
     /**
      * The function that is actually called that starts the recursion
      */
-    template <typename TupleType>
-    void size_each(TupleType && t, std::vector<unsigned int> & sizes)
+    template<typename TupleType>
+    void size_each(TupleType&& t, std::vector<unsigned int>& sizes)
     {
         size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, 0>());
     }
@@ -360,7 +360,7 @@ protected:
             _column_sizes[i] = _headers[i].size();
 
         // Grab the size of each entry of each row and see if it's bigger
-        for (auto & row : _data)
+        for (auto& row: _data)
         {
             size_each(row, column_sizes);
 

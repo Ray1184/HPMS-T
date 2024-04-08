@@ -11,6 +11,7 @@
 
 #include <random>
 
+#define MAP_SIZE 16
 
 namespace hpms
 {
@@ -25,7 +26,6 @@ namespace hpms
     public:
         [[noreturn]] virtual void Init() override
         {
-
             Logs::logLevel = TRACE;
             resSupplier = SAFE_NEW(hpms::ResourceSupplierImpl);
             ResourcesHandler::PreloadResources("pak1.zip", resSupplier);
@@ -46,9 +46,11 @@ namespace hpms
             compMap->pakId = "pak1.zip";
             compMap->layer = 1;
             compMap->id = Strings::UniqueId();
+            START_TIMER();
             FillChunkRandom(compMap, 1);
+            END_TIMER();
+            LOG_DEBUG("Large map loaded in {} seconds", elapsed.count());
             mapEntity->AddComponent(compMap);
-
             viewEntity = SAFE_NEW(hpms::Entity, "view_01");
             auto* compCam = SAFE_NEW(hpms::Camera);
             viewEntity->AddComponent(compCam);
@@ -93,17 +95,20 @@ namespace hpms
 
             for (int n = 0; n < iter; n++)
             {
-                for (int x = 0; x < 16 * 1000; x++)
+                for (int x = 0; x < MAP_SIZE * 1000; x++)
                 {
-                    for (int y = 0; y < 16 * 100; y++)
+                    for (int y = 0; y < MAP_SIZE * 1000; y++)
                     {
                         //for (int z = -8; z < 8; z++)
                         {
-                            int randomX = 1;//distribution(gen);
-                            int randomY = 1;//distribution(gen);
-                            int randomZ = 1;//distribution(gen);
-                            Tile t{(float) x * randomX, (float) y * randomY, 0, 0};
-                            tmap->tiles.push_back(t);
+                            int randomX = 1; //distribution(gen);
+                            int randomY = 1; //distribution(gen);
+                            int randomZ = 1; //distribution(gen);
+                            Tile tile{(float) x * randomX, (float) y * randomY, 0, 0};
+                            const int chunkX = static_cast<int>(tile.position.x) / CHUNK_SIZE;
+                            const int chunkY = static_cast<int>(tile.position.y) / CHUNK_SIZE;
+                            Transform2D key{static_cast<float>(chunkX), static_cast<float>(chunkY)};
+                            tmap->chunks[key].push_back(tile);
                         }
                     }
                 }
@@ -112,14 +117,13 @@ namespace hpms
 
         void HandleInput(InputHandler* inputHandler) override
         {
-
         }
 
         void Update(float tpf) override
         {
             auto* cam = viewEntity->GetComponent<Camera>(COMPONENT_CAMERA);
-            cam->position.x = cam->position.x + (tpf * 10);
-            //cam->position.y = cam->position.y + (tpf * 10);
+            cam->position.x = cam->position.x + (tpf * 100);
+            cam->position.y = cam->position.y + (tpf * 30);
         }
 
         void Render(Renderer* renderer, Window* window) override
@@ -144,7 +148,9 @@ namespace hpms
             for (auto* entity: entities)
             {
                 entity->ForeachComponent([](ComponentType t, Component* c)
-                                         { SAFE_DELETE(Component, c); });
+                {
+                    SAFE_DELETE(Component, c);
+                });
                 SAFE_DELETE(hpms::Entity, entity);
             }
 

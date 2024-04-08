@@ -8,10 +8,11 @@
 
 void hpms::PictureRenderingWorkflow::Render(Window* window, Drawable* item)
 {
-    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::TriangleStrip, 4);
+    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->GetId(), sf::PrimitiveType::TriangleStrip);
 
     if (item->IsUpdateVertices() || item->IsForceAll())
     {
+        vertexBuffer->create(4);
         sf::Vertex vertexArray[4];
         auto* pic = dynamic_cast<PictureQuad*>(item);
         const auto* image = pic->GetImage();
@@ -32,7 +33,6 @@ void hpms::PictureRenderingWorkflow::Render(Window* window, Drawable* item)
         vertexBuffer->update(vertexArray);
 
         LOG_TRACE("VertexBuffer up to date for item {}", item->GetId());
-
     }
 
     auto* sfWin = dynamic_cast<WindowImpl*>(window)->GetNative();

@@ -1,18 +1,20 @@
 #include "ecs/system/RenderSystem.h"
 
-#include <ranges>
-
 #include "engine/renderable/PictureQuad.h"
 #include "engine/renderable/TilesPool.h"
 #include "base/ResourcesHandler.h"
 #include "base/Math.h"
 
+#include <ranges>
 #include <utility>
 
 void hpms::RenderSystem::Init(std::vector<Entity*>& entities, RenderSystemParams* args)
 {
+    START_TIMER();
     InitView(entities, args);
     InitChunks(entities, args);
+    END_TIMER();
+    LOG_DEBUG("RenderSystem initialized in {} seconds", elapsed.count());
 }
 
 void hpms::RenderSystem::Update(std::vector<Entity*>& entities, RenderSystemParams* args)
@@ -76,23 +78,16 @@ void hpms::RenderSystem::InitChunks(const std::vector<Entity*>& entities, Render
     for (const auto& [fst, snd]: tileMapsByLayer)
     {
         const auto* tileMap = snd.second;
-        auto* mergedTexture = ResourcesHandler::Provide<Texture>(tileMap->pakId, tileMap->textureName);
+        auto* texture = ResourcesHandler::Provide<Texture>(tileMap->pakId, tileMap->textureName);
+        auto& chunks = tileMap->chunks;
 
-        int counter = 0;
-        for (const auto& tile: tileMap->tiles)
+        unsigned long counter = 0;
+        for (const auto& [fst2, snd2] : chunks)
         {
-            const int chunkX = static_cast<int>(tile.position.x) / CHUNK_SIZE;
-            const int chunkY = static_cast<int>(tile.position.y) / CHUNK_SIZE;
-            Transform2D key{static_cast<float>(chunkX), static_cast<float>(chunkY)};
-            if (!allChunks.contains(key))
-            {
-                allChunks[key] = SAFE_NEW(TilesPool, fst, mergedTexture, tileMap->id + "_C_" + std::to_string(counter++));
-            }
-            allChunks[key]->AddTile(tile);
+            allChunks[fst2] = SAFE_NEW(TilesPool, fst, texture, tileMap->id + "_C_" + std::to_string(counter++), snd2);
         }
     }
 }
-
 
 void hpms::RenderSystem::UpdateChunks(const std::vector<Entity*>& entities, RenderSystemParams* args)
 {
@@ -104,16 +99,24 @@ void hpms::RenderSystem::UpdateChunks(const std::vector<Entity*>& entities, Rend
         view.y = cam->position.y;
     }
 
-    const auto width = static_cast<float>(args->window->GetSettings().width);
-    const auto height = static_cast<float>(args->window->GetSettings().height);
-    const AABox viewRect{view.x, view.y, width, height};
-    for (auto& [fst, snd]: allChunks)
+    const float chunkX = std::floor(view.x / (TILE_SIZE * CHUNK_SIZE));
+    const float chunkY = std::floor(view.y / (TILE_SIZE * CHUNK_SIZE));
+    Transform2D faces[9];
+    faces[0] = Transform2D{chunkX - 1, chunkY - 1};
+    faces[1] = Transform2D{chunkX - 1, chunkY};
+    faces[2] = Transform2D{chunkX - 1, chunkY + 1};
+    faces[3] = Transform2D{chunkX, chunkY - 1};
+    faces[4] = Transform2D{chunkX, chunkY};
+    faces[5] = Transform2D{chunkX, chunkY + 1};
+    faces[6] = Transform2D{chunkX + 1, chunkY - 1};
+    faces[7] = Transform2D{chunkX + 1, chunkY};
+    faces[8] = Transform2D{chunkX + 1, chunkY + 1};
+
+    for (auto& face: faces)
     {
-        const Transform2D chunkCoord = fst;
-        const AABox chunkBox{chunkCoord.x * TILE_SIZE * CHUNK_SIZE, chunkCoord.y * TILE_SIZE * CHUNK_SIZE, TILE_SIZE * CHUNK_SIZE, TILE_SIZE * CHUNK_SIZE};
-        if (Math::Intersect(chunkBox, viewRect))
+        if (allChunks.contains(face))
         {
-            inViewChunks.push_back(snd);
+            inViewChunks.push_back(allChunks[face]);
         }
     }
 }

@@ -7,10 +7,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 include(FetchContent)
+
 FetchContent_Declare(PHYSFS
         GIT_REPOSITORY https://github.com/icculus/physfs
         GIT_TAG release-3.2.0)
 FetchContent_MakeAvailable(PHYSFS)
+
+FetchContent_Declare(QTREE
+        GIT_REPOSITORY https://github.com/tuxalin/THST
+        GIT_TAG master)
+FetchContent_MakeAvailable(QTREE)
 
 set(SOURCES
         src/base/ResourcesHandler.cpp
@@ -26,6 +32,6 @@ set(SOURCES
 
 add_library(Main ${SOURCES})
 target_include_directories(Main PUBLIC include)
-target_link_libraries(Main PRIVATE physfs-static)
+target_link_libraries(Main PUBLIC physfs-static PUBLIC THST)
 target_compile_features(Main PRIVATE cxx_std_20)
 message(STATUS "Module Main built successfully")

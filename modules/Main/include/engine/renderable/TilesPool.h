@@ -15,9 +15,7 @@ namespace hpms
 
     public:
 
-        TilesPool(unsigned int layer, Texture* texture, const std::string& id, const int flags = STRATEGY_STATIC);
-
-        void AddTile(const Tile& tile);
+        TilesPool(unsigned int layer, Texture* texture, const std::string& id, const std::vector<Tile>& tiles, const int flags = STRATEGY_STATIC);
 
         std::vector<Tile>* GetTiles();
 

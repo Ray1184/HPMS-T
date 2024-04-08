@@ -23,17 +23,11 @@ namespace hpms
     {
     private:
         std::unordered_map<Transform2D, TilesPool*> allChunks;
-
         std::vector<TilesPool*> inViewChunks;
-
         std::unordered_map<std::string, SimpleSprite*> allSprites;
-
         std::vector<SimpleSprite*> inViewSprites;
-
         std::unordered_map<std::string, PictureQuad*> allPictures;
-
         std::vector<PictureQuad*> inViewPictures;
-
         Camera* cam;
 
         void InitView(const std::vector<Entity*>& entities, RenderSystemParams* args);

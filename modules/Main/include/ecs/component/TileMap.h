@@ -4,12 +4,15 @@
 #include "ecs/component/Graphics.h"
 
 #include <vector>
+#include <unordered_map>
 
 namespace hpms
 {
+    typedef std::unordered_map<Transform2D, std::vector<Tile>> TileChunks;
+
     struct TileMap : public Graphics
     {
-        std::vector<Tile> tiles;
+        TileChunks chunks;
 
         ComponentType Type() const override
         {
