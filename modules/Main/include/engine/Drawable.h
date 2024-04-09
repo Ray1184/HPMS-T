@@ -1,9 +1,8 @@
 #pragma once
 
-#include "base/Defs.h"
 #include "engine/resource/Texture.h"
 
-#include <vector>
+#include <unordered_map>
 
 namespace hpms
 {
@@ -27,6 +26,7 @@ namespace hpms
         Texture* texture;
         bool updateVertices{false};
         bool forceAll{true};
+        std::unordered_map<std::string, std::string> tempData;
 
         virtual ~Drawable() = default;
 

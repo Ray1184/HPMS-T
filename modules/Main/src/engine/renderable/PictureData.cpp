@@ -1,6 +1,6 @@
-#include "engine/renderable/PictureQuad.h"
+#include "engine/renderable/PictureData.h"
 
-hpms::PictureQuad::PictureQuad(const unsigned int layer, Texture* texture, const Transform2D position, const std::string& id, int flags)
+hpms::PictureData::PictureData(const unsigned int layer, Texture* texture, const Transform2D position, const std::string& id, int flags)
 {
     this->layer = layer;
     this->texture = texture;

@@ -2,9 +2,9 @@
 
 #include "ecs/System.h"
 #include "ecs/component/Components.h"
-#include "engine/renderable/TilesPool.h"
-#include "engine/renderable/PictureQuad.h"
-#include "engine/renderable/SimpleSprite.h"
+#include "engine/renderable/TilesChunkData.h"
+#include "engine/renderable/PictureData.h"
+#include "engine/renderable/SpriteData.h"
 #include "engine/Renderer.h"
 #include "engine/Window.h"
 
@@ -22,13 +22,12 @@ namespace hpms
     class RenderSystem : public System<RenderSystemParams>
     {
     private:
-        std::unordered_map<unsigned int, std::vector<TilesPool>> pooledChunkData;
-        std::unordered_map<Transform2D, TilesPool*> allChunks;
-        std::vector<TilesPool*> inViewChunks;
-        std::unordered_map<std::string, SimpleSprite*> allSprites;
-        std::vector<SimpleSprite*> inViewSprites;
-        std::unordered_map<std::string, PictureQuad*> allPictures;
-        std::vector<PictureQuad*> inViewPictures;
+        std::unordered_map<unsigned int, TilesMap*> allChunks;
+        std::vector<TilesChunkData*> inViewChunks;
+        std::unordered_map<std::string, SpriteData*> allSprites;
+        std::vector<SpriteData*> inViewSprites;
+        std::unordered_map<std::string, PictureData*> allPictures;
+        std::vector<PictureData*> inViewPictures;
         Camera* cam;
 
         void InitView(const std::vector<Entity*>& entities, RenderSystemParams* args);

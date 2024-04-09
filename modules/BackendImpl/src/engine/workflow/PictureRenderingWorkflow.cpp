@@ -2,7 +2,7 @@
 #include "engine/workflow/VertexBufferProvider.h"
 #include "engine/WindowImpl.h"
 #include "engine/resource/TextureImpl.h"
-#include "engine/renderable/PictureQuad.h"
+#include "engine/renderable/PictureData.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -14,7 +14,7 @@ void hpms::PictureRenderingWorkflow::Render(Window* window, Drawable* item)
     {
         vertexBuffer->create(4);
         sf::Vertex vertexArray[4];
-        auto* pic = dynamic_cast<PictureQuad*>(item);
+        auto* pic = dynamic_cast<PictureData*>(item);
         const float px = pic->image.position.x;
         const float py = pic->image.position.y;
 

@@ -11,12 +11,12 @@ namespace hpms
         float height;
     };
 
-    struct PictureQuad : public Drawable
+    struct PictureData : public Drawable
     {
         Image image;
 
 
-        PictureQuad(unsigned int layer, Texture* texture, Transform2D position, const std::string& id, int flags = STRATEGY_STATIC);
+        PictureData(unsigned int layer, Texture* texture, Transform2D position, const std::string& id, int flags = STRATEGY_STATIC);
 
 
         [[nodiscard]] RenderType GetType() const override

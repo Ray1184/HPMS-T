@@ -5,4 +5,4 @@
 #include "ecs/component/Movable.h"
 #include "ecs/component/Picture.h"
 #include "ecs/component/Sprite.h"
-#include "ecs/component/TileMap.h"
+#include "ecs/component/TilesMap.h"

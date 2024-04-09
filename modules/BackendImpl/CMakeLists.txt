@@ -19,8 +19,7 @@ set(SOURCES
         src/engine/RendererImpl.cpp
         src/engine/FrameBufferImpl.cpp
         src/engine/workflow/PictureRenderingWorkflow.cpp
-        src/engine/workflow/TilesPoolRenderingWorkflow.cpp
-        src/engine/workflow/TilesPoolRenderingOptimizer.cpp
+        src/engine/workflow/TilesChunkDataRenderingWorkflow.cpp
         include/engine/workflow/VertexBufferProvider.h
         src/engine/workflow/VertexBufferProvider.cpp)
 

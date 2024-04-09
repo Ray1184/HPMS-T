@@ -1,7 +1,7 @@
 #include "ecs/system/RenderSystem.h"
 
-#include "engine/renderable/PictureQuad.h"
-#include "engine/renderable/TilesPool.h"
+#include "engine/renderable/PictureData.h"
+#include "engine/renderable/TilesChunkData.h"
 #include "base/ResourcesHandler.h"
 #include "base/Math.h"
 
@@ -14,7 +14,7 @@ void hpms::RenderSystem::Init(std::vector<Entity*>& entities, RenderSystemParams
     InitView(entities, args);
     InitChunks(entities, args);
     END_TIMER();
-    LOG_DEBUG("RenderSystem initialized in {} seconds", elapsed.count());
+    LOG_DEBUG("RenderSystem initialized in {} seconds", GET_ELAPSED());
 }
 
 void hpms::RenderSystem::Update(std::vector<Entity*>& entities, RenderSystemParams* args)
@@ -39,21 +39,16 @@ void hpms::RenderSystem::Cleanup(std::vector<Entity*>& entities, RenderSystemPar
 {
     for (auto& val: allSprites | std::views::values)
     {
-        SAFE_DELETE(SimpleSprite, val);
+        SAFE_DELETE(SpriteData, val);
     }
     for (auto& val: allPictures | std::views::values)
     {
-        SAFE_DELETE(PictureQuad, val);
-    }
-    for (auto & [fst, snd] : pooledChunkData)
-    {
-        snd.clear();
+        SAFE_DELETE(PictureData, val);
     }
 
     allSprites.clear();
     allPictures.clear();
-    pooledChunkData.clear();
-
+    allChunks.clear();
 }
 
 void hpms::RenderSystem::InitView(const std::vector<Entity*>& entities, RenderSystemParams* args)
@@ -69,35 +64,17 @@ void hpms::RenderSystem::InitView(const std::vector<Entity*>& entities, RenderSy
 
 void hpms::RenderSystem::InitChunks(const std::vector<Entity*>& entities, RenderSystemParams* args)
 {
-    std::unordered_map<unsigned int, std::pair<std::string, TileMap*> > tileMapsByLayer;
+    std::unordered_map<unsigned int, std::pair<std::string, TilesMap*> > tileMapsByLayer;
     for (auto* entity: entities)
     {
-        if (entity->HasComponent(COMPONENT_TILEMAP))
+        if (entity->HasComponent(COMPONENT_TILES_MAP))
         {
-            auto* tileMap = entity->GetComponent<TileMap>(COMPONENT_TILEMAP);
-            tileMapsByLayer[tileMap->layer] = {entity->GetId(), tileMap};
+            START_TIMER();
+            auto* tileMap = entity->GetComponent<TilesMap>(COMPONENT_TILES_MAP);
+            allChunks[tileMap->layer] = tileMap;
+            END_TIMER();
+            LOG_DEBUG("{} Chunks allocation done in {} seconds for layer {}", tileMap->chunks.size(), GET_ELAPSED(), tileMap->layer);
         }
-    }
-
-    for (const auto& [fst, snd]: tileMapsByLayer)
-    {
-        START_TIMER();
-        const auto* tileMap = snd.second;
-        auto* texture = ResourcesHandler::Provide<Texture>(tileMap->pakId, tileMap->textureName);
-        auto& chunks = tileMap->chunks;
-        pooledChunkData[fst].reserve(chunks.size());
-
-        for (const auto& [fst2, snd2]: chunks)
-        {
-            TilesPool tilesPool;
-            tilesPool.layer = fst;
-            tilesPool.texture = texture;
-            tilesPool.id = "L" + std::to_string(fst) + "_C" + tileMap->id + "[" + std::to_string(fst2.x) + "," + std::to_string(fst2.y) + "]";
-            tilesPool.tiles = snd2;
-            allChunks[fst2] = &pooledChunkData[fst].emplace_back(std::move(tilesPool));
-        }
-        END_TIMER();
-        LOG_DEBUG("{} Chunks allocation done in {} seconds for layer {}", allChunks.size(), elapsed.count(), fst);
     }
 }
 
@@ -126,9 +103,17 @@ void hpms::RenderSystem::UpdateChunks(const std::vector<Entity*>& entities, Rend
 
     for (auto& face: faces)
     {
-        if (allChunks.contains(face))
+        for (auto& [fst, snd]: allChunks)
         {
-            inViewChunks.push_back(allChunks[face]);
+            auto& chunks = snd->chunks;
+            if (chunks.contains(face))
+            {
+                auto* chunk = &chunks[face];
+                const auto& pakId = chunk->tempData["PAK_ID"];
+                const auto& textureName = chunk->tempData["TEXTURE_NAME"];
+                chunk->texture = ResourcesHandler::Provide<Texture>(pakId, textureName);
+                inViewChunks.push_back(chunk);
+            }
         }
     }
 }
@@ -148,7 +133,7 @@ void hpms::RenderSystem::UpdateDrawables(const std::vector<Entity*>& entities, R
     const auto height = static_cast<float>(args->window->GetSettings().height);
     const AABox viewRect{view.x, view.y, width, height};
 
-    std::unordered_map<unsigned int, std::pair<std::string, TileMap*> > tileMapsByLayer;
+    std::unordered_map<unsigned int, std::pair<std::string, TilesMap*> > tileMapsByLayer;
     for (auto* entity: entities)
     {
         Transform2D pos{0, 0};
@@ -166,7 +151,7 @@ void hpms::RenderSystem::UpdateDrawables(const std::vector<Entity*>& entities, R
             if (!allSprites.contains(sprite->id))
             {
                 auto* tex = ResourcesHandler::Provide<Texture>(sprite->pakId, sprite->textureName);
-                allSprites[sprite->id] = SAFE_NEW(SimpleSprite, sprite->layer, tex, sprite->id, pos, sprite->tiles, sprite->width, sprite->height, STRATEGY_UPDATE_VERTICES);
+                allSprites[sprite->id] = SAFE_NEW(SpriteData, sprite->layer, tex, sprite->id, pos, sprite->tiles, sprite->width, sprite->height, STRATEGY_UPDATE_VERTICES);
             }
 
             const AABox spriteBox{pos.x, pos.y, static_cast<float>(sprite->width), static_cast<float>(sprite->height)};
@@ -183,7 +168,7 @@ void hpms::RenderSystem::UpdateDrawables(const std::vector<Entity*>& entities, R
             if (!allPictures.contains(pic->id))
             {
                 auto* tex = ResourcesHandler::Provide<Texture>(pic->pakId, pic->textureName);
-                allPictures[pic->id] = SAFE_NEW(PictureQuad, pic->layer, tex, pos, pic->id);
+                allPictures[pic->id] = SAFE_NEW(PictureData, pic->layer, tex, pos, pic->id);
             }
 
             const AABox picBox{pos.x, pos.y, allPictures[pic->id]->image.width, allPictures[pic->id]->image.height};

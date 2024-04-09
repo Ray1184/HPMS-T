@@ -7,13 +7,13 @@
 
 namespace hpms
 {
-    struct TilesPool : public Drawable
+    struct TilesChunkData : public Drawable
     {
         std::vector<Tile> tiles;
 
-        TilesPool();
+        TilesChunkData() = default;
 
-        TilesPool(unsigned int layer, Texture* texture, const std::string& id, const std::vector<Tile>& tiles, const int flags = STRATEGY_STATIC);
+        TilesChunkData(unsigned int layer, Texture* texture, const std::string& id, const std::vector<Tile>& tiles, const int flags = STRATEGY_STATIC);
 
         [[nodiscard]] RenderType GetType() const override
         {

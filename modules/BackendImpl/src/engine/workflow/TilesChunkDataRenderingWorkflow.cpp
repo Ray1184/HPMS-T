@@ -1,19 +1,18 @@
-#include "engine/workflow/TilesPoolRenderingWorkflow.h"
-#include "engine/workflow/TilesPoolRenderingOptimizer.h"
+#include "engine/workflow/TilesChunkDataRenderingWorkflow.h"
 #include "engine/workflow/VertexBufferProvider.h"
-#include "engine/WindowImpl.h"
 #include "engine/resource/TextureImpl.h"
-#include "engine/renderable/TilesPool.h"
+#include "engine/WindowImpl.h"
+#include "engine/renderable/TilesChunkData.h"
 
 #include <SFML/Graphics.hpp>
 
-void hpms::TilesPoolRenderingWorkflow::Render(Window* window, Drawable* item)
+void hpms::TilesChunkDataRenderingWorkflow::Render(Window* window, Drawable* item)
 {
     sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->id, sf::PrimitiveType::Triangles);
 
     if (item->updateVertices || item->forceAll)
     {
-        auto* pool = dynamic_cast<TilesPool*>(item);
+        auto* pool = dynamic_cast<TilesChunkData*>(item);
 
         auto& tiles = pool->tiles;
 

@@ -2,7 +2,7 @@
 
 #include "engine/RenderingWorkflow.h"
 #include "engine/workflow/PictureRenderingWorkflow.h"
-#include "engine/workflow/TilesPoolRenderingWorkflow.h"
+#include "engine/workflow/TilesChunkDataRenderingWorkflow.h"
 
 namespace hpms
 {
@@ -12,7 +12,7 @@ namespace hpms
         static RenderingWorkflow* GetRenderingWorkflow(RenderType type)
         {
             static PictureRenderingWorkflow prw;
-            static TilesPoolRenderingWorkflow trw;
+            static TilesChunkDataRenderingWorkflow trw;
             switch (type)
             {
             case DRAWABLE_PICTURE:
