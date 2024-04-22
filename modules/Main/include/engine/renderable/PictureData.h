@@ -4,19 +4,20 @@
 
 namespace hpms
 {
-    struct Image
-    {
-        Transform2D position;
-        float width;
-        float height;
-    };
-
     struct PictureData : public Drawable
     {
-        Image image;
+        Transform2D position;
+        float width{0};
+        float height{0};
 
+        PictureData() = default;
 
-        PictureData(unsigned int layer, Texture* texture, Transform2D position, const std::string& id, int flags = STRATEGY_STATIC);
+        PictureData(const std::string& id, const unsigned int layer, Texture* texture, const Transform2D& position, const bool updateVertices = false) : Drawable(id, layer, texture, updateVertices)
+        {
+            this->position = position;
+            width = static_cast<float>(texture->Width());
+            height = static_cast<float>(texture->Height());
+        }
 
 
         [[nodiscard]] RenderType GetType() const override

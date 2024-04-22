@@ -14,6 +14,14 @@ namespace hpms
 {
     struct Tile
     {
+        Tile()
+        {
+        }
+
+        Tile(const Transform2D& position, const Transform2D& texCoords) : position(position), texCoords(texCoords)
+        {
+        }
+
         Transform2D position{0, 0};
         Transform2D texCoords{0, 0};
     };

@@ -12,7 +12,7 @@ void hpms::ResourcesHandler::PreloadResources(const std::string& pakId, Resource
     {
         LOG_DEBUG("Loading {} resource", name);
         const ResourceType type = Resource::ByResourceName(name);
-        Resource* res = supplier->Create(type);
+        Resource* res = supplier->Create(type, name);
         res->Load(buffer, size);
         resourcesCache[pakId].insert({name, res});
 

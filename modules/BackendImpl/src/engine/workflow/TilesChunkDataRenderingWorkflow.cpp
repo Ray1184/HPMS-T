@@ -8,7 +8,7 @@
 
 void hpms::TilesChunkDataRenderingWorkflow::Render(Window* window, Drawable* item)
 {
-    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(item->id, sf::PrimitiveType::Triangles);
+    sf::VertexBuffer* vertexBuffer = VertexBufferProvider::GetVertexBuffer(CACHE_TILES_CHUNKS, item->id, sf::PrimitiveType::Triangles);
 
     if (item->updateVertices || item->forceAll)
     {
@@ -46,7 +46,7 @@ void hpms::TilesChunkDataRenderingWorkflow::Render(Window* window, Drawable* ite
         }
 
         vertexBuffer->update(vertexArray.data());
-        LOG_TRACE("VertexBuffer up to date for item {}", item->id);
+        LOG_TRACE("VertexBuffer up to date for tiles chunk {}", item->id);
     }
 
     auto* sfWin = dynamic_cast<WindowImpl*>(window)->GetNative();

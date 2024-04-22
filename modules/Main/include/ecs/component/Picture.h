@@ -1,15 +1,16 @@
 #pragma once
 
-#include "base/Defs.h"
+#include "engine/renderable/PictureData.h"
 #include "ecs/component/Graphics.h"
-
-#include <string>
 
 namespace hpms
 {
 
     struct Picture : public hpms::Graphics
     {
+        Transform2D key;
+        PictureData picture;
+
         ComponentType Type() const override
         {
             return COMPONENT_PICTURE;

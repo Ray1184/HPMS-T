@@ -9,12 +9,12 @@ namespace hpms
     {
     public:
         template<typename T>
-        inline static hpms::System<T>* GetSystem(hpms::SystemType type)
+        static System<T>* GetSystem(const SystemType type)
         {
             static RenderSystem renderSystem;
             switch (type)
             {
-            case hpms::SystemType::SYSTEM_RENDERER:
+            case SYSTEM_RENDERER:
                 return &renderSystem;
             default:
                 LOG_ERROR("System not implemented");

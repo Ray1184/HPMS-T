@@ -3,11 +3,10 @@ COMPONENT       |    TASK                    |       SUBTASK                    
 Main            |Base API                    |                                        |90%    |
 BackendImpl     |SFML Backend                |Base scene primitives                   |90%    |
 Main            |ECS architecture            |                                        |90%    |
-Main            |Chunks                      |Large tilemaps chunking                 |80%    |
+Main            |Chunks                      |Large maps chunking                     |80%    |
 BackendImpl     |Chunks                      |VertexBuffer cache                      |90%    |
 Main            |Chunks                      |Improve chunks update performances      |90     |
-Main            |Chunks                      |Improve chunks init  performances       |0%     |
+Main            |Chunks                      |Improve chunks init performances        |90%    |
 Main            |Rendering                   |Sprite groups as Drawable               |0%     |
 BackendImpl     |Rendering                   |Sprite groups rendering workflow        |0%     |
-BackendImpl     |Rendering                   |Sprite groups rendering workflow        |0%     |
-BackendImpl     |Performances                |Avoid dynamic_cast inside looop         |0%     |
+BackendImpl     |Performances                |Avoid dynamic_cast inside loop          |0%     |

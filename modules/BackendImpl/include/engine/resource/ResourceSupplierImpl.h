@@ -6,28 +6,28 @@
 
 namespace hpms
 {
-    class ResourceSupplierImpl : public hpms::ResourceSupplier
+    class ResourceSupplierImpl : public ResourceSupplier
     {
     public:
-        inline hpms::Resource* Create(hpms::ResourceType resType) override
+        Resource* Create(ResourceType resType, const std::string& resId) override
         {
             switch (resType)
             {
-            case hpms::ResourceType::TEXTURES:
-                return SAFE_NEW(hpms::TextureImpl);
+            case TEXTURES:
+                return SAFE_NEW(TextureImpl, resId);
             default:
                 return nullptr;
             }
 
         }
 
-        inline void Delete(hpms::ResourceType resType, hpms::Resource* resource) override
+        void Delete(ResourceType resType, Resource* resource) override
         {
             switch (resType)
             {
-            case hpms::ResourceType::TEXTURES:
+            case TEXTURES:
                 auto* ptr = dynamic_cast<TextureImpl*>(resource);
-                SAFE_DELETE(hpms::TextureImpl, ptr);
+                SAFE_DELETE(TextureImpl, ptr);
                 return;
             }
         }

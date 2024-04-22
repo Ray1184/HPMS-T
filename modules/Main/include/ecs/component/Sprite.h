@@ -1,17 +1,14 @@
 #pragma once
 
-#include "engine/Tile.h"
+#include "engine/renderable/SpriteData.h"
 #include "ecs/component/Graphics.h"
-
-#include <vector>
 
 namespace hpms
 {
     struct Sprite : public Graphics
     {
-        std::vector<Tile> tiles;
-        int width;
-        int height;
+        Transform2D key;
+        SpriteData sprite;
 
         ComponentType Type() const override
         {

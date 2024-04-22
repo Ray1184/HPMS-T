@@ -1,35 +1,47 @@
 #include "ecs/system/RenderSystem.h"
-
-#include "engine/renderable/PictureData.h"
-#include "engine/renderable/TilesChunkData.h"
 #include "base/ResourcesHandler.h"
-#include "base/Math.h"
 
 #include <ranges>
-#include <utility>
 
 void hpms::RenderSystem::Init(std::vector<Entity*>& entities, RenderSystemParams* args)
 {
-    START_TIMER();
-    InitView(entities, args);
-    InitChunks(entities, args);
-    END_TIMER();
-    LOG_DEBUG("RenderSystem initialized in {} seconds", GET_ELAPSED());
+    START_TIMER(RenderSystem_Init);
+    InitView(entities);
+    InitChunks(entities);
+    InitSprites(entities);
+    InitPictures(entities);
+    END_TIMER(RenderSystem_Init);
+    LOG_DEBUG("RenderSystem initialized in {} seconds", GET_ELAPSED(RenderSystem_Init));
 }
 
 void hpms::RenderSystem::Update(std::vector<Entity*>& entities, RenderSystemParams* args)
 {
-    UpdateChunks(entities, args);
-    UpdateDrawables(entities, args);
-    std::vector<Drawable*> drawables;
-    drawables.insert(drawables.end(), inViewChunks.begin(), inViewChunks.end());
-    drawables.insert(drawables.end(), inViewSprites.begin(), inViewSprites.end());
-    drawables.insert(drawables.end(), inViewPictures.begin(), inViewPictures.end());
     Transform2D view{0, 0};
     if (cam != nullptr)
     {
         view.x = cam->position.x;
         view.y = cam->position.y;
+    }
+    Transform2D faces[9];
+    FindNearestFaces(view, faces);
+    UpdatePositions(entities);
+    UpdateChunks();
+    UpdateSprites();
+    UpdatePictures();
+    std::vector<Drawable*> drawables;
+    drawables.insert(drawables.end(), inViewChunks.begin(), inViewChunks.end());
+    drawables.insert(drawables.end(), inViewPictures.begin(), inViewPictures.end());
+    std::unordered_map<std::string, SpriteBatch> compositeSpritesByLayerAndTexture;
+    for (auto* sprite: inViewSprites)
+    {
+        std::string key = "L" + std::to_string(sprite->layer) + "_SB_" + sprite->texture->ResourceId();
+        compositeSpritesByLayerAndTexture[key].id = key;
+        compositeSpritesByLayerAndTexture[key].subSprites.push_back(sprite);
+        compositeSpritesByLayerAndTexture[key].layer = sprite->layer;
+    }
+    for (auto& snd: compositeSpritesByLayerAndTexture | std::views::values)
+    {
+        drawables.push_back(&snd);
     }
     args->renderer->Render(args->window, view, &drawables);
 }
@@ -37,21 +49,12 @@ void hpms::RenderSystem::Update(std::vector<Entity*>& entities, RenderSystemPara
 
 void hpms::RenderSystem::Cleanup(std::vector<Entity*>& entities, RenderSystemParams* args)
 {
-    for (auto& val: allSprites | std::views::values)
-    {
-        SAFE_DELETE(SpriteData, val);
-    }
-    for (auto& val: allPictures | std::views::values)
-    {
-        SAFE_DELETE(PictureData, val);
-    }
-
     allSprites.clear();
     allPictures.clear();
     allChunks.clear();
 }
 
-void hpms::RenderSystem::InitView(const std::vector<Entity*>& entities, RenderSystemParams* args)
+void hpms::RenderSystem::InitView(const std::vector<Entity*>& entities)
 {
     for (auto* entity: entities)
     {
@@ -62,23 +65,46 @@ void hpms::RenderSystem::InitView(const std::vector<Entity*>& entities, RenderSy
     }
 }
 
-void hpms::RenderSystem::InitChunks(const std::vector<Entity*>& entities, RenderSystemParams* args)
+void hpms::RenderSystem::InitChunks(const std::vector<Entity*>& entities)
 {
-    std::unordered_map<unsigned int, std::pair<std::string, TilesMap*> > tileMapsByLayer;
     for (auto* entity: entities)
     {
         if (entity->HasComponent(COMPONENT_TILES_MAP))
         {
-            START_TIMER();
+            START_TIMER(RenderSystem_InitChunks);
             auto* tileMap = entity->GetComponent<TilesMap>(COMPONENT_TILES_MAP);
             allChunks[tileMap->layer] = tileMap;
-            END_TIMER();
-            LOG_DEBUG("{} Chunks allocation done in {} seconds for layer {}", tileMap->chunks.size(), GET_ELAPSED(), tileMap->layer);
+            END_TIMER(RenderSystem_InitChunks);
+            LOG_DEBUG("{} Chunks allocation done in {} seconds for layer {}", tileMap->chunks.size(), GET_ELAPSED(RenderSystem_InitChunks), tileMap->layer);
         }
     }
 }
 
-void hpms::RenderSystem::UpdateChunks(const std::vector<Entity*>& entities, RenderSystemParams* args)
+void hpms::RenderSystem::InitSprites(const std::vector<Entity*>& entities)
+{
+    for (auto* entity: entities)
+    {
+        if (entity->HasComponent(COMPONENT_SPRITE))
+        {
+            auto* sprite = entity->GetComponent<Sprite>(COMPONENT_SPRITE);
+            allSprites[sprite->layer].push_back(sprite);
+        }
+    }
+}
+
+void hpms::RenderSystem::InitPictures(const std::vector<Entity*>& entities)
+{
+    for (auto* entity: entities)
+    {
+        if (entity->HasComponent(COMPONENT_PICTURE))
+        {
+            auto* pic = entity->GetComponent<Picture>(COMPONENT_PICTURE);
+            allPictures[pic->layer] = pic;
+        }
+    }
+}
+
+void hpms::RenderSystem::UpdateChunks()
 {
     inViewChunks.clear();
     Transform2D view{0, 0};
@@ -88,9 +114,80 @@ void hpms::RenderSystem::UpdateChunks(const std::vector<Entity*>& entities, Rend
         view.y = cam->position.y;
     }
 
+    Transform2D faces[9];
+    FindNearestFaces(view, faces);
+
+    for (auto& face: faces)
+    {
+        for (auto& snd: allChunks | std::views::values)
+        {
+            auto& chunks = snd->chunks;
+            if (chunks.contains(face))
+            {
+                auto* chunk = &chunks[face];
+                inViewChunks.push_back(chunk);
+            }
+        }
+    }
+}
+
+void hpms::RenderSystem::UpdateSprites()
+{
+    inViewSprites.clear();
+    Transform2D view{0, 0};
+    if (cam != nullptr)
+    {
+        view.x = cam->position.x;
+        view.y = cam->position.y;
+    }
+
+    Transform2D faces[9];
+    FindNearestFaces(view, faces);
+
+    for (auto& face: faces)
+    {
+        for (const auto& snd: allSprites | std::views::values)
+        {
+            for (const auto& sp: snd)
+                if (sp->key == face)
+                {
+                    auto* sprite = &sp->sprite;
+                    inViewSprites.push_back(sprite);
+                }
+        }
+    }
+}
+
+void hpms::RenderSystem::UpdatePictures()
+{
+    inViewPictures.clear();
+    Transform2D view{0, 0};
+    if (cam != nullptr)
+    {
+        view.x = cam->position.x;
+        view.y = cam->position.y;
+    }
+
+    Transform2D faces[9];
+    FindNearestFaces(view, faces);
+
+    for (auto& face: faces)
+    {
+        for (const auto& snd: allPictures | std::views::values)
+        {
+            if (snd->key == face)
+            {
+                auto* picture = &snd->picture;
+                inViewPictures.push_back(picture);
+            }
+        }
+    }
+}
+
+void hpms::RenderSystem::FindNearestFaces(const Transform2D& view, Transform2D (& faces)[9])
+{
     const float chunkX = std::floor(view.x / (TILE_SIZE * CHUNK_SIZE));
     const float chunkY = std::floor(view.y / (TILE_SIZE * CHUNK_SIZE));
-    Transform2D faces[9];
     faces[0] = Transform2D{chunkX - 1, chunkY - 1};
     faces[1] = Transform2D{chunkX - 1, chunkY};
     faces[2] = Transform2D{chunkX - 1, chunkY + 1};
@@ -100,81 +197,35 @@ void hpms::RenderSystem::UpdateChunks(const std::vector<Entity*>& entities, Rend
     faces[6] = Transform2D{chunkX + 1, chunkY - 1};
     faces[7] = Transform2D{chunkX + 1, chunkY};
     faces[8] = Transform2D{chunkX + 1, chunkY + 1};
-
-    for (auto& face: faces)
-    {
-        for (auto& [fst, snd]: allChunks)
-        {
-            auto& chunks = snd->chunks;
-            if (chunks.contains(face))
-            {
-                auto* chunk = &chunks[face];
-                const auto& pakId = chunk->tempData["PAK_ID"];
-                const auto& textureName = chunk->tempData["TEXTURE_NAME"];
-                chunk->texture = ResourcesHandler::Provide<Texture>(pakId, textureName);
-                inViewChunks.push_back(chunk);
-            }
-        }
-    }
 }
 
-
-void hpms::RenderSystem::UpdateDrawables(const std::vector<Entity*>& entities, RenderSystemParams* args)
+void hpms::RenderSystem::UpdatePositions(const std::vector<Entity*>& entities)
 {
-    inViewSprites.clear();
-    inViewPictures.clear();
-    Transform2D view{0, 0};
-    if (cam != nullptr)
-    {
-        view.x = cam->position.x;
-        view.y = cam->position.y;
-    }
-    const auto width = static_cast<float>(args->window->GetSettings().width);
-    const auto height = static_cast<float>(args->window->GetSettings().height);
-    const AABox viewRect{view.x, view.y, width, height};
-
-    std::unordered_map<unsigned int, std::pair<std::string, TilesMap*> > tileMapsByLayer;
     for (auto* entity: entities)
     {
-        Transform2D pos{0, 0};
         if (entity->HasComponent(COMPONENT_MOVABLE))
         {
-            const auto* mov = entity->GetComponent<Movable>(COMPONENT_MOVABLE);
-            pos.x = mov->position.x;
-            pos.y = mov->position.y;
-        }
-
-        if (entity->HasComponent(COMPONENT_SPRITE))
-        {
-            const auto* sprite = entity->GetComponent<Sprite>(COMPONENT_SPRITE);
-
-            if (!allSprites.contains(sprite->id))
+            if (auto* mov = entity->GetComponent<Movable>(COMPONENT_MOVABLE))
             {
-                auto* tex = ResourcesHandler::Provide<Texture>(sprite->pakId, sprite->textureName);
-                allSprites[sprite->id] = SAFE_NEW(SpriteData, sprite->layer, tex, sprite->id, pos, sprite->tiles, sprite->width, sprite->height, STRATEGY_UPDATE_VERTICES);
-            }
 
-            const AABox spriteBox{pos.x, pos.y, static_cast<float>(sprite->width), static_cast<float>(sprite->height)};
-            if (sprite->visible && Math::Intersect(spriteBox, viewRect))
-            {
-                inViewSprites.push_back(allSprites[sprite->id]);
-            }
-        }
-
-        if (entity->HasComponent(COMPONENT_PICTURE))
-        {
-            const auto* pic = entity->GetComponent<Picture>(COMPONENT_PICTURE);
-
-            if (!allPictures.contains(pic->id))
-            {
-                auto* tex = ResourcesHandler::Provide<Texture>(pic->pakId, pic->textureName);
-                allPictures[pic->id] = SAFE_NEW(PictureData, pic->layer, tex, pos, pic->id);
-            }
-
-            const AABox picBox{pos.x, pos.y, allPictures[pic->id]->image.width, allPictures[pic->id]->image.height};
-            if (pic->visible && Math::Intersect(picBox, viewRect))
-            {
-                inViewPictures.push_back(allPictures[pic->id]);
+                if (entity->HasComponent(COMPONENT_SPRITE))
+                {
+                    auto* sprite = entity->GetComponent<Sprite>(COMPONENT_SPRITE);
+                    sprite->key.x = std::floor(mov->position.x / (TILE_SIZE * CHUNK_SIZE));
+                    sprite->key.y = std::floor(mov->position.y / (TILE_SIZE * CHUNK_SIZE));
+                    sprite->sprite.position.x = mov->position.x;
+                    sprite->sprite.position.y = mov->position.y;
+                    sprite->sprite.updateVertices = true;
+                }
+                if (entity->HasComponent(COMPONENT_PICTURE))
+                {
+                    auto* pic = entity->GetComponent<Picture>(COMPONENT_PICTURE);
+                    pic->key.x = std::floor(mov->position.x / (TILE_SIZE * CHUNK_SIZE));
+                    pic->key.y = std::floor(mov->position.y / (TILE_SIZE * CHUNK_SIZE));
+                    pic->picture.position.x = mov->position.x;
+                    pic->picture.position.y = mov->position.y;
+                    pic->picture.updateVertices = true;
+                }
             }
         }
     }

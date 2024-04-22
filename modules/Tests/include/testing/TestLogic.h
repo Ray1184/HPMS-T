@@ -11,7 +11,7 @@
 
 #include <random>
 
-#define MAP_SIZE_CHUNKS 256
+#define MAP_SIZE_CHUNKS 64
 
 namespace hpms
 {
@@ -20,69 +20,103 @@ namespace hpms
     private:
         ResourceSupplierImpl* resSupplier;
         std::vector<Entity*> entities;
+        std::vector<Entity*> sprites;
         Entity* viewEntity = nullptr;
+        Entity* picEntity = nullptr;
+        Entity* spritEntity = nullptr;
+        Entity* spritEntity2 = nullptr;
         bool renderInit{false};
 
     public:
+
+
         [[noreturn]] virtual void Init() override
         {
             Logs::logLevel = TRACE;
             resSupplier = SAFE_NEW(hpms::ResourceSupplierImpl);
             ResourcesHandler::PreloadResources("pak1.zip", resSupplier);
-            //auto* backTex = hpms::ResourcesHandler::Provide<hpms::Texture>("pak1.zip", "/textures/background.png");
-            //auto* tilemapTex = hpms::ResourcesHandler::Provide<hpms::Texture>("pak1.zip", "/textures/tileset_custom_48_48.png");
-            // auto* pic = SAFE_NEW(hpms::PictureData, 0, backTex, hpms::Transform2D{0, 0});
-            auto* picEntity = SAFE_NEW(hpms::Entity, "pic_01");
+            picEntity = SAFE_NEW(hpms::Entity, "pic_01");
             auto* compPic = SAFE_NEW(hpms::Picture);
             compPic->textureName = "/textures/background.png";
             compPic->pakId = "pak1.zip";
-            compPic->layer = 0;
+            compPic->layer = 5;
             compPic->id = Strings::UniqueId();
+            compPic->picture.id = compPic->id;
+            compPic->picture.layer = compPic->layer;
+            compPic->picture.texture = ResourcesHandler::Provide<Texture>(compPic->pakId, compPic->textureName);
+            compPic->picture.width = compPic->picture.texture->Width();
+            compPic->picture.height = compPic->picture.texture->Height();
             picEntity->AddComponent(compPic);
+
+            //auto* compMov = SAFE_NEW(hpms::Movable);
+            //compMov->position = Transform2D{50, 50};
+            //picEntity->AddComponent(compMov);
+
+
+
+
 
             auto* mapEntity = SAFE_NEW(hpms::Entity, "map_01");
             auto* compMap = SAFE_NEW(hpms::TilesMap);
             compMap->textureName = "/textures/tileset_custom_48_48.png";
             compMap->pakId = "pak1.zip";
-            compMap->layer = 1;
+            compMap->layer = 0;
             compMap->id = Strings::UniqueId();
-            START_TIMER();
+            START_TIMER(test);
             FillChunkRandom(compMap);
-            END_TIMER();
-            LOG_DEBUG("Large map loaded in {} seconds", GET_ELAPSED());
+            END_TIMER(test);
+            LOG_DEBUG("Large map loaded in {} seconds", GET_ELAPSED(test));
             mapEntity->AddComponent(compMap);
+
             viewEntity = SAFE_NEW(hpms::Entity, "view_01");
             auto* compCam = SAFE_NEW(hpms::Camera);
             viewEntity->AddComponent(compCam);
-            //auto* chunk1 = SAFE_NEW(hpms::TilesChunkData, 1, tilemapTex);
-            //auto* chunk2 = SAFE_NEW(hpms::TilesChunkData);
-            //auto* chunk3 = SAFE_NEW(hpms::TilesChunkData);
-            //auto* chunk4 = SAFE_NEW(hpms::TilesChunkData);
-            //auto* chunk5 = SAFE_NEW(hpms::TilesChunkData);
-            //auto* chunk6 = SAFE_NEW(hpms::TilesChunkData);
-            //auto* chunk7 = SAFE_NEW(hpms::TilesChunkData);
-            //auto* chunk8 = SAFE_NEW(hpms::TilesChunkData);
-
-
-            //FillChunkRandom(chunk2, 1);
-            //FillChunkRandom(chunk3, 1);
-            //FillChunkRandom(chunk4, 1);
-            //FillChunkRandom(chunk5, 1);
-            //FillChunkRandom(chunk6, 1);
-            //FillChunkRandom(chunk7, 1);
-            //FillChunkRandom(chunk8, 1);
 
             entities.push_back(picEntity);
             entities.push_back(mapEntity);
             entities.push_back(viewEntity);
-            //drawables.push_back(chunk1);
-            //drawables.push_back(chunk2);
-            //drawables.push_back(chunk3);
-            //drawables.push_back(chunk4);
-            //drawables.push_back(chunk5);
-            //drawables.push_back(chunk6);
-            //drawables.push_back(chunk7);
-            //drawables.push_back(chunk8);
+            for (int i = 0; i < 1024; i++)
+            {
+                auto* spriteEnt = GenerateRandomSprite();
+                entities.push_back(spriteEnt);
+                sprites.push_back(spriteEnt);
+            }
+            //entities.push_back(spritEntity);
+            //entities.push_back(spritEntity2);
+        }
+
+        Entity* GenerateRandomSprite()
+        {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+
+            // Definisci la distribuzione per generare numeri tra 0 e 2 (inclusi)
+            std::uniform_int_distribution<int> distribution(-10, 320);
+            int tx = distribution(gen);
+            int ty = distribution(gen);
+
+            auto* spriteEntity = SAFE_NEW(hpms::Entity, "sprite_01");
+            auto* compSprite = SAFE_NEW(hpms::Sprite);
+            compSprite->textureName = "/textures/sprite_1.png";
+            compSprite->pakId = "pak1.zip";
+            compSprite->layer = 10;
+            compSprite->id = Strings::UniqueId();
+            compSprite->sprite.id = compSprite->id;
+            compSprite->sprite.layer = compSprite->layer;
+            compSprite->sprite.texture = ResourcesHandler::Provide<Texture>(compSprite->pakId, compSprite->textureName);
+            compSprite->sprite.tiles.push_back({{0, 0}, {0, 0}});
+            compSprite->sprite.tiles.push_back({{1, 0}, {1, 0}});
+            compSprite->sprite.tiles.push_back({{0, 1}, {0, 1}});
+            compSprite->sprite.tiles.push_back({{1, 1}, {1, 1}});
+            compSprite->sprite.tiles.push_back({{0, 2}, {0, 2}});
+            compSprite->sprite.tiles.push_back({{1, 2}, {1, 2}});
+            compSprite->sprite.tiles.push_back({{0, 3}, {0, 3}});
+            compSprite->sprite.tiles.push_back({{1, 3}, {1, 3}});
+            spriteEntity->AddComponent(compSprite);
+            auto* compMovSp = SAFE_NEW(hpms::Movable);
+            compMovSp->position = Transform2D{(float)tx, (float)ty};
+            spriteEntity->AddComponent(compMovSp);
+            return spriteEntity;
         }
 
         void FillTiles(TilesChunkData* data, int x, int y) const
@@ -113,38 +147,14 @@ namespace hpms
                 {
                     TilesChunkData data;
                     data.id = "L" + std::to_string(tmap->layer) + "_C" + tmap->id + "[" + std::to_string(x) + "," + std::to_string(y) + "]";
-                    data.tempData["TEXTURE_NAME"] = tmap->textureName;
-                    data.tempData["PAK_ID"] = tmap->pakId;
+                    data.layer = tmap->layer;
+                    data.texture = ResourcesHandler::Provide<Texture>(tmap->pakId, tmap->textureName);
                     FillTiles(&data, x, y);
                     Transform2D k = {x * 1.0f, y * 1.0f};
                     tmap->chunks[k] = std::move(data);
                 }
             }
 
-            //for (int n = 0; n < iter; n++)
-            //{
-            //    for (int x = 0; x < MAP_SIZE * 1000; x++)
-            //    {
-            //        for (int y = 0; y < MAP_SIZE * 1000; y++)
-            //        {
-            //            //for (int z = -8; z < 8; z++)
-            //            {
-            //                int randomX = 1; //distribution(gen);
-            //                int randomY = 1; //distribution(gen);
-            //                int randomZ = 1; //distribution(gen);
-            //                Tile tile{(float) x * randomX, (float) y * randomY, 0, 0};
-            //                const int chunkX = static_cast<int>(tile.position.x) / CHUNK_SIZE;
-            //                const int chunkY = static_cast<int>(tile.position.y) / CHUNK_SIZE;
-            //                Transform2D key{static_cast<float>(chunkX), static_cast<float>(chunkY)};
-            //                tmap->chunks[key].id = "L" + std::to_string(tmap->layer) + "_C" + tmap->id + "[" + std::to_string(key.x) + "," + std::to_string(key.y) + "]";
-            //                tmap->chunks[key].tiles.push_back(tile);
-            //                tmap->chunks[key].tempData["TEXTURE_NAME"] = tmap->textureName;
-            //                tmap->chunks[key].tempData["PAK_ID"] = tmap->pakId;
-            //                //LOG_TRACE("Filling chunk {}-{}", key.x, key.y);
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         void HandleInput(InputHandler* inputHandler) override
@@ -154,8 +164,25 @@ namespace hpms
         void Update(float tpf) override
         {
             auto* cam = viewEntity->GetComponent<Camera>(COMPONENT_CAMERA);
-            cam->position.x = cam->position.x + (tpf * 100);
-            cam->position.y = cam->position.y + (tpf * 30);
+            cam->position.x = cam->position.x + (tpf * 2);
+            cam->position.y = cam->position.y + (tpf * 5);
+
+            int i = 0;
+            for (auto* sprite : sprites)
+            {
+                if (i == 0)
+                {
+                    auto* pos = sprite->GetComponent<Movable>(COMPONENT_MOVABLE);
+                    pos->position.x = pos->position.x + (tpf * -3);
+                    pos->position.y = pos->position.y + (tpf * 5);
+                    //pos->changed = true;
+                    i++;
+                }
+                //pos->changed = true;
+            }
+            //auto* pos = spritEntity->GetComponent<Movable>(COMPONENT_MOVABLE);
+            //pos->position.x = pos->position.x * (tpf * -3);
+            //pos->position.y = pos->position.y + (tpf * 5);
         }
 
         void Render(Renderer* renderer, Window* window) override

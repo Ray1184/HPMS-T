@@ -7,11 +7,15 @@
 
 namespace hpms
 {
-    class TextureImpl : public hpms::Texture, public hpms::NativeData<sf::Texture>
+    class TextureImpl : public Texture, public NativeData<sf::Texture>
     {
     private:
-        sf::Texture* sfmlTexture;
+        sf::Texture* sfmlTexture{nullptr};
+        std::string resId;
+
     public:
+        explicit TextureImpl(const std::string& resId);
+
         sf::Texture* GetNative() override;
 
         unsigned int Width() override;
@@ -19,6 +23,8 @@ namespace hpms
         unsigned int Height() override;
 
         void Swap(Texture* other) override;
+
+        std::string ResourceId() override;
 
     protected:
         void Allocate(void* ptr, unsigned int size) override;

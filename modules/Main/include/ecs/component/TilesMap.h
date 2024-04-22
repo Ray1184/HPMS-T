@@ -3,7 +3,6 @@
 #include "engine/renderable/TilesChunkData.h"
 #include "ecs/component/Graphics.h"
 
-#include <vector>
 #include <unordered_map>
 
 namespace hpms

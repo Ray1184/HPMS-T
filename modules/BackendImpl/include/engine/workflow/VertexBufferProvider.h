@@ -4,9 +4,12 @@
 
 #include <queue>
 #include <functional>
+#include <ranges>
 #include <SFML/Graphics.hpp>
 
-#define VERTEX_BUFFER_CACHE_SIZE 16
+#define MAX_SPRITES_GROUPS_ON_SCREEN 16
+#define MAX_TILES_CHUNKS_ON_SCREEN 16
+#define MAX_PICTURES_ON_SCREEN 128
 
 namespace hpms
 {
@@ -21,7 +24,11 @@ namespace hpms
         EvictCallback callback;
 
     public:
-        explicit VertexBufferCache(const unsigned int size, const EvictCallback& callback) : size(size), callback(callback)
+        VertexBufferCache(): size(0)
+        {
+        }
+
+        VertexBufferCache(const unsigned int size, const EvictCallback& callback) : size(size), callback(callback)
         {
         }
 
@@ -71,23 +78,53 @@ namespace hpms
         }
     };
 
+    enum CacheName
+    {
+        CACHE_TILES_CHUNKS,
+        CACHE_SPRITES,
+        CACHE_PICTURES
+    };
+
 
     class VertexBufferProvider
     {
     private:
-        static VertexBufferCache buffers;
+        static std::unordered_map<CacheName, VertexBufferCache> buffersMap;
+        static bool initialized;
 
     public:
         static void ClearAllBuffers()
         {
-            LOG_DEBUG("Deleting all {} buffers", buffers.Size());
-            buffers.Clear();
+            for (auto& snd: buffersMap | std::views::values)
+            {
+                LOG_DEBUG("Deleting all {} buffers", snd.Size());
+                snd.Clear();
+            }
         }
 
-        static sf::VertexBuffer* GetVertexBuffer(const std::string& id, sf::PrimitiveType primitiveType)
+        static sf::VertexBuffer* GetVertexBuffer(const CacheName cacheName, const std::string& id, sf::PrimitiveType primitiveType)
         {
-            buffers.PutIfAbsent(id, sf::VertexBuffer(primitiveType));
-            return &(buffers.Get(id));
+            if (!initialized)
+            {
+                buffersMap[CACHE_TILES_CHUNKS] = VertexBufferCache(MAX_TILES_CHUNKS_ON_SCREEN, [](const std::string& key, sf::VertexBuffer& vb)
+                {
+                    LOG_TRACE("Deleting buffer {} from CHUNKS cache", key);
+                    vb.create(0);
+                });
+                buffersMap[CACHE_SPRITES] = VertexBufferCache(MAX_SPRITES_GROUPS_ON_SCREEN, [](const std::string& key, sf::VertexBuffer& vb)
+                {
+                    LOG_TRACE("Deleting buffer {} from SPRITES cache", key);
+                    vb.create(0);
+                });
+                buffersMap[CACHE_PICTURES] = VertexBufferCache(MAX_PICTURES_ON_SCREEN, [](const std::string& key, sf::VertexBuffer& vb)
+                {
+                    LOG_TRACE("Deleting buffer {} from PICTURES cache", key);
+                    vb.create(0);
+                });
+                initialized = true;
+            }
+            buffersMap[cacheName].PutIfAbsent(id, sf::VertexBuffer(primitiveType));
+            return &(buffersMap[cacheName].Get(id));
         }
     };
 }

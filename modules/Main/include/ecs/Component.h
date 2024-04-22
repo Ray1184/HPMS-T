@@ -1,5 +1,8 @@
 #pragma once
 
+#include <unordered_map>
+#include <string>
+
 namespace hpms
 {
 
@@ -17,6 +20,8 @@ namespace hpms
 
     struct Component
     {
+        std::unordered_map<std::string, std::string> customStrings;
+
         virtual ~Component() = default;
 
         [[nodiscard]] virtual ComponentType Type() const = 0;

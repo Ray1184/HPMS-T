@@ -1,5 +1,9 @@
 #include "engine/resource/TextureImpl.h"
 
+hpms::TextureImpl::TextureImpl(const std::string& resId) : resId(resId)
+{
+}
+
 sf::Texture* hpms::TextureImpl::GetNative()
 {
     return sfmlTexture;
@@ -19,6 +23,11 @@ void hpms::TextureImpl::Swap(Texture* other)
 {
     auto* sfmlOther = dynamic_cast<TextureImpl*>(other)->GetNative();
     sfmlTexture->swap(*sfmlOther);
+}
+
+std::string hpms::TextureImpl::ResourceId()
+{
+    return resId;
 }
 
 void hpms::TextureImpl::Allocate(void* ptr, unsigned int size)

@@ -18,9 +18,9 @@ set(SOURCES
         src/engine/GameRunnerImpl.cpp
         src/engine/RendererImpl.cpp
         src/engine/FrameBufferImpl.cpp
-        src/engine/workflow/PictureRenderingWorkflow.cpp
+        src/engine/workflow/PictureDataRenderingWorkflow.cpp
         src/engine/workflow/TilesChunkDataRenderingWorkflow.cpp
-        include/engine/workflow/VertexBufferProvider.h
+        src/engine/workflow/SpriteDataRenderingWorkflow.cpp
         src/engine/workflow/VertexBufferProvider.cpp)
 
 add_library(BackendImpl ${SOURCES})

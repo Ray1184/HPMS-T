@@ -14,10 +14,10 @@
 #define LOG_WARN(msg, ...) hpms::Logs::Log(hpms::LogLevel::WARN, __FUNCTION__, std::format(msg, __VA_ARGS__))
 #define LOG_ERROR(msg, ...) hpms::Logs::Log(hpms::LogLevel::ERROR, __FUNCTION__, std::format(msg, __VA_ARGS__))
 
-#define START_TIMER() auto timerStart_##__LINE__ = std::chrono::high_resolution_clock::now()
-#define END_TIMER() auto timerEnd_##__LINE__ = std::chrono::high_resolution_clock::now()
+#define START_TIMER(name) auto timerStart_##name = std::chrono::high_resolution_clock::now()
+#define END_TIMER(name) auto timerEnd_##name = std::chrono::high_resolution_clock::now()
 
-#define GET_ELAPSED() std::chrono::duration_cast<std::chrono::seconds>(timerEnd_##__LINE__ - timerStart_##__LINE__).count()
+#define GET_ELAPSED(name) std::chrono::duration_cast<std::chrono::seconds>(timerEnd_##name - timerStart_##name).count()
 
 namespace hpms
 {

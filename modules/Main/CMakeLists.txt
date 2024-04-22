@@ -20,9 +20,6 @@ set(SOURCES
         src/base/Files.cpp
         src/base/Strings.cpp
         src/base/Logs.cpp
-        src/engine/renderable/PictureData.cpp
-        src/engine/renderable/SpriteData.cpp
-        src/engine/renderable/TilesChunkData.cpp
         src/ecs/system/RenderSystem.cpp)
 
 add_library(Main ${SOURCES})

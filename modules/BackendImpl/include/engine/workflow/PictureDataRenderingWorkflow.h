@@ -4,7 +4,7 @@
 
 namespace hpms
 {
-    class PictureRenderingWorkflow : public RenderingWorkflow
+    class PictureDataRenderingWorkflow : public RenderingWorkflow
     {
     public:
         virtual void Render(Window* window, Drawable* item) override;

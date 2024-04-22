@@ -30,7 +30,9 @@ namespace hpms
 
         virtual ~Resource() = default;
 
-        inline void Load(void* ptr, unsigned int size)
+        virtual std::string ResourceId() = 0;
+
+        void Load(void* ptr, unsigned int size)
         {
             if (!loaded)
             {
@@ -39,7 +41,7 @@ namespace hpms
             }
         }
 
-        inline void Unload()
+        void Unload()
         {
             if (loaded)
             {
@@ -48,17 +50,17 @@ namespace hpms
             }
         }
 
-        inline static hpms::ResourceType ByResourceName(const std::string& name)
+        static ResourceType ByResourceName(const std::string& name)
         {
-            static const std::unordered_map<std::string, hpms::ResourceType> resourceTypeMapping = {
-                    {".png",   hpms::ResourceType::TEXTURES},
-                    {".hpmap", hpms::ResourceType::MAPS},
-                    {".rdef",  hpms::ResourceType::RES_DEFINITION},
-                    {".mp3",   hpms::ResourceType::SOUNDS},
-                    {".lua",   hpms::ResourceType::SCRIPTS}
+            static const std::unordered_map<std::string, ResourceType> resourceTypeMapping = {
+                    {".png",   TEXTURES},
+                    {".hpmap", MAPS},
+                    {".rdef",  RES_DEFINITION},
+                    {".mp3",   SOUNDS},
+                    {".lua",   SCRIPTS}
             };
 
-            std::string extension = hpms::Strings::GetFilenameExtension(name);
+            const std::string extension = Strings::GetFilenameExtension(name);
             return resourceTypeMapping.at(extension);
         }
     };
