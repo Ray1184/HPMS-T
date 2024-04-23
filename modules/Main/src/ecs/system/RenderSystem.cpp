@@ -31,15 +31,14 @@ void hpms::RenderSystem::Update(std::vector<Entity*>& entities, RenderSystemPara
     std::vector<Drawable*> drawables;
     drawables.insert(drawables.end(), inViewChunks.begin(), inViewChunks.end());
     drawables.insert(drawables.end(), inViewPictures.begin(), inViewPictures.end());
-    std::unordered_map<std::string, SpriteBatch> compositeSpritesByLayerAndTexture;
+    std::unordered_map<unsigned int, SpriteBatch> compositeSpritesByLayer;
     for (auto* sprite: inViewSprites)
     {
-        std::string key = "L" + std::to_string(sprite->layer) + "_SB_" + sprite->texture->ResourceId();
-        compositeSpritesByLayerAndTexture[key].id = key;
-        compositeSpritesByLayerAndTexture[key].subSprites.push_back(sprite);
-        compositeSpritesByLayerAndTexture[key].layer = sprite->layer;
+        compositeSpritesByLayer[sprite->layer].id = "L" + std::to_string(sprite->layer) + "_SB";
+        compositeSpritesByLayer[sprite->layer].subSprites.push_back(sprite);
+        compositeSpritesByLayer[sprite->layer].layer = sprite->layer;
     }
-    for (auto& snd: compositeSpritesByLayerAndTexture | std::views::values)
+    for (auto& snd: compositeSpritesByLayer | std::views::values)
     {
         drawables.push_back(&snd);
     }
